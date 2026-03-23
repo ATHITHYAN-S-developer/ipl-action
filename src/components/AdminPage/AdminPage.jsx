@@ -169,12 +169,8 @@ const AdminPage = ({ onLogout }) => {
                 <h3>MATCH SCHEDULING</h3>
                 <form onSubmit={handleUpdateMatchInfo} className="admin-form-vertical">
                   <div className="input-group">
-                    <label>Next Match (Time/Text)</label>
-                    <input value={matchInfo.nextMatchTime} onChange={e => setMatchInfo({...matchInfo, nextMatchTime: e.target.value})} />
-                  </div>
-                  <div className="input-group">
-                    <label>Remaining Days</label>
-                    <input value={matchInfo.remainingDays} onChange={e => setMatchInfo({...matchInfo, remainingDays: e.target.value})} />
+                    <label>Next Match Time (e.g. 9:00 AM)</label>
+                    <input value={matchInfo.nextMatchTime} onChange={e => setMatchInfo({...matchInfo, nextMatchTime: e.target.value})} placeholder="9:00 AM" />
                   </div>
                   <div className="input-group">
                     <label>Footer Status Msg</label>

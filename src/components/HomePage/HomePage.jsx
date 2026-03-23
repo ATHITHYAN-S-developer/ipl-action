@@ -14,7 +14,9 @@ const HomePage = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('home');
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [teams, setTeams] = useState([]);
-  const [matchInfo, setMatchInfo] = useState({ nextMatchTime: '02:00', remainingDays: '45', footerStatus: 'PORTAL ACTIVE' });
+  const [matchInfo, setMatchInfo] = useState({ nextMatchTime: '9:00 AM', footerStatus: 'PORTAL ACTIVE' });
+  const [liveScore, setLiveScore] = useState({ teamA: '', teamB: '', scoreA: '', scoreB: '', overs: '' });
+  const [displayTime, setDisplayTime] = useState('00:00');
   const [loading, setLoading] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
@@ -26,14 +28,82 @@ const HomePage = ({ user, onLogout }) => {
     });
 
     const unsubMatch = onSnapshot(doc(db, 'settings', 'matchInfo'), (snapshot) => {
-      if (snapshot.exists()) setMatchInfo(snapshot.data());
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        setMatchInfo(data);
+        setDisplayTime(data.nextMatchTime);
+      }
+    });
+
+    const unsubScore = onSnapshot(doc(db, 'settings', 'liveScore'), (snapshot) => {
+      if (snapshot.exists()) setLiveScore(snapshot.data());
     });
 
     return () => {
       unsubTeams();
       unsubMatch();
+      unsubScore();
     };
   }, []);
+
+  // --- Real-time Countdown Timer (Support for AM/PM Target Time) ---
+  useEffect(() => {
+    const parseTargetTime = (timeStr) => {
+      if (!timeStr) return null;
+      try {
+        const parts = timeStr.trim().split(/\s+/);
+        if (parts.length < 2) return null; // Needs time and AM/PM
+        
+        let [time, period] = parts;
+        let [hours, minutes] = time.split(':').map(Number);
+        period = period.toUpperCase();
+        
+        if (period === 'PM' && hours < 12) hours += 12;
+        if (period === 'AM' && hours === 12) hours = 0;
+        
+        const target = new Date();
+        target.setHours(hours, minutes || 0, 0, 0);
+        
+        // If the target has already passed today, assume it's for tomorrow
+        if (target < new Date()) {
+          target.setDate(target.getDate() + 1);
+        }
+        return target;
+      } catch (e) {
+        return null;
+      }
+    };
+
+    const timer = setInterval(() => {
+      const targetDate = parseTargetTime(matchInfo.nextMatchTime);
+      if (!targetDate) {
+        setDisplayTime(matchInfo.nextMatchTime);
+        return;
+      }
+
+      const now = new Date();
+      const diff = targetDate - now;
+
+      if (diff <= 0) {
+        setDisplayTime("00:00:00");
+        return;
+      }
+
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+
+      const timeStr = [
+        h.toString().padStart(2, '0'),
+        m.toString().padStart(2, '0'),
+        s.toString().padStart(2, '0')
+      ].join(':');
+
+      setDisplayTime(timeStr);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [matchInfo.nextMatchTime]);
 
   const handleMouseMove = (e) => {
     if (containerRef.current) {
@@ -49,12 +119,6 @@ const HomePage = ({ user, onLogout }) => {
     setActiveTab(tabId);
     setSelectedTeam(null);
   };
-
-  const upcomingMatches = [
-    { date: 'Mar 18, 2026', time: '7:30 PM', team1: 'Mumbai Warriors', team2: 'Chennai Super Kings' },
-    { date: 'Mar 19, 2026', time: '3:30 PM', team1: 'Royal Challengers', team2: 'Delhi Capitals' },
-    { date: 'Mar 19, 2026', time: '7:30 PM', team1: 'Kolkata Knights', team2: 'Punjab Kings' }
-  ];
 
   return (
     <div className="home-container" ref={containerRef} onMouseMove={handleMouseMove}>
@@ -79,25 +143,34 @@ const HomePage = ({ user, onLogout }) => {
               </div>
             </div>
 
-            <div className="metrics-grid-proper">
+            {/* LIVE SCOREBOARD BANNER */}
+            {liveScore.teamA && (
+              <div className="live-score-banner-glass pulse-border">
+                <div className="live-badge-premium">LIVE MATCH</div>
+                <div className="score-main-flex">
+                  <div className="score-team">
+                    <span className="team-name-lg">{liveScore.teamA}</span>
+                    <span className="team-score-num">{liveScore.scoreA}</span>
+                  </div>
+                  <div className="score-vs-premium">VS</div>
+                  <div className="score-team">
+                    <span className="team-score-num">{liveScore.scoreB}</span>
+                    <span className="team-name-lg">{liveScore.teamB}</span>
+                  </div>
+                </div>
+                {liveScore.overs && <div className="score-overs">{liveScore.overs} OVERS</div>}
+              </div>
+            )}
+
+            <div className="metrics-grid-proper three-cols">
               <MetricCard label="TOTAL TEAMS" value={teams.length} icon="👥" mousePos={mousePos} />
-              <MetricCard label="MATCHES" value="06" icon="🏏" mousePos={mousePos} />
-              <MetricCard label="REMAINING DAYS" value={matchInfo.remainingDays} icon="📅" mousePos={mousePos} />
+              <MetricCard label="MATCH" value={displayTime} icon="🏏" mousePos={mousePos} />
               <MetricCard label="NEXT LIVE" value={matchInfo.nextMatchTime} unit="HRS" icon="⏰" mousePos={mousePos} />
             </div>
 
             <div className="home-features-grid">
               <InteractiveCard title="Team Auctions" desk="Watch as teams build their squads with strategic bidding. Follow the action in real-time and see which players command the highest prices." mousePos={mousePos} />
               <InteractiveCard title="Live Matches" desk="Experience cricket like never before. Track live scores, player statistics, and match highlights all in one place." mousePos={mousePos} />
-            </div>
-
-            <div className="upcoming-matches-section">
-              <h2 className="section-title">Upcoming Matches</h2>
-              <div className="matches-grid-wrapper">
-                {upcomingMatches.map((match, i) => (
-                  <MatchCardFigma key={i} match={match} mousePos={mousePos} index={i} />
-                ))}
-              </div>
             </div>
           </div>
         )}
@@ -191,40 +264,6 @@ const InteractiveCard = ({ title, desk, mousePos }) => {
     <div className="feature-card-glass" ref={cardRef} style={{ transform: `translate(${translate.x}px, ${translate.y}px)` }}>
       <h3>{title}</h3>
       <p>{desk}</p>
-    </div>
-  );
-};
-
-const MatchCardFigma = ({ match, mousePos, index }) => {
-  const cardRef = useRef(null);
-  const [translate, setTranslate] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (cardRef.current) {
-      const rect = cardRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const dx = mousePos.x - (centerX - window.scrollX);
-      const dy = mousePos.y - (centerY - window.scrollY);
-      const dist = Math.sqrt(dx * dx + dy * dy);
-
-      if (dist < 250) {
-        const force = (250 - dist) / 250;
-        setTranslate({ x: (dx / dist) * -15 * force, y: (dy / dist) * -15 * force });
-      } else {
-        setTranslate({ x: 0, y: 0 });
-      }
-    }
-  }, [mousePos]);
-
-  return (
-    <div className="match-card-figma" ref={cardRef} style={{ transform: `translate(${translate.x}px, ${translate.y}px)`, animationDelay: `${index * 0.1}s` }}>
-      <div className="match-date-time">{match.date} • {match.time}</div>
-      <div className="match-vs-main">
-        <div className="team-name">{match.team1}</div>
-        <div className="vs-badge">VS</div>
-        <div className="team-name">{match.team2}</div>
-      </div>
     </div>
   );
 };

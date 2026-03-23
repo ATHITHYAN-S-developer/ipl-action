@@ -1,7 +1,4 @@
 import React, { useState } from 'react';
-import { auth, db } from '../../firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { collection, query, where, getDocs } from 'firebase/firestore';
 import sponsorLogo from '../../assets/sponsor-logo-removebg-preview.png';
 import './LoginPage.css';
 
@@ -40,32 +37,34 @@ const LoginPage = ({ onLogin }) => {
     setError('');
     setLoading(true);
 
-    try {
-      // Query Firestore for user credentials
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('username', '==', identity), where('password', '==', password));
-      const querySnapshot = await getDocs(q);
+    const id = identity.trim();
+    const pass = password.trim();
 
-      if (!querySnapshot.empty) {
-        const userData = querySnapshot.docs[0].data();
-        onLogin(userData.role, userData);
+    try {
+      // Hardcoded matches as requested by the user: "remove all other password"
+      
+      // USER ENTRY
+      if (id === 'champ3203' && pass === 'champ32033203') {
+        const userData = { username: id, role: 'user' };
+        onLogin('user', userData);
         setLoading(false);
         return;
       }
 
-      // If not in custom users collection, try standard Firebase Auth (as fallback or for other teams)
-      const email = identity.includes('@') ? identity : `${identity}@iplauction.com`;
-      await signInWithEmailAndPassword(auth, email, password);
-      // If sign in succeeds but not in 'users' collection, treat as regular user
-      onLogin('user', { email });
-      
+      // ADMIN ENTRY
+      if (id === 'superchamp3203' && pass === 'superchamp32033203') {
+        const userData = { username: id, role: 'admin' };
+        onLogin('admin', userData);
+        setLoading(false);
+        return;
+      }
+
+      // All other passwords are removed
+      throw new Error('Invalid Credentials');
+
     } catch (err) {
       console.error(err);
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || (err.message && err.message.includes('Invalid Credentials'))) {
-        setError('ACCESS DENIED: Invalid Credentials.');
-      } else {
-        setError('ERROR: Verification failed. ' + err.message);
-      }
+      setError('ACCESS DENIED: Invalid Credentials.');
     } finally {
       setLoading(false);
     }
