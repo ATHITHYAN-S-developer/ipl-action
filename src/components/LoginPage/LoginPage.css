@@ -178,8 +178,10 @@
   box-shadow: 0 0 20px rgba(252, 207, 20, 0.1);
 }
 
+.lp-input-icon {
   color: #fccf14;
   font-size: 0.9rem;
+  margin-right: 15px;
 }
 
 .lp-input-field-wrapper input {
@@ -258,4 +260,35 @@
   .lp-title-main { font-size: 2.2rem; }
   .lp-card-glass { padding: 30px 20px; }
   .lp-metrics-grid { gap: 10px; }
+}
+
+.lp-password-toggle {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 5px;
+  margin-left: 10px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lp-password-toggle:hover {
+  color: #fccf14;
+  transform: scale(1.1);
+}
+
+.lp-error-alert {
+  padding: 12px;
+  margin-bottom: 25px;
+  background: rgba(255, 77, 77, 0.1);
+  border: 1px solid rgba(255, 77, 77, 0.2);
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+  color: #ff4d4d;
 }
