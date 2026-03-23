@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #050810;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Design Tokens */
+  --primary-yellow: #fccf14;
+  --secondary-cyan: #00f2ff;
+  --bg-dark: #050810;
+  --card-bg: rgba(13, 17, 28, 0.8);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --glow-yellow: rgba(252, 207, 20, 0.3);
+  --glow-cyan: rgba(0, 242, 255, 0.3);
+  --text-dim: rgba(255, 255, 255, 0.6);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background: radial-gradient(circle at center, #0f172a 0%, #050810 100%);
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+}
+
+h1, h2, h3, .font-accent {
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: inherit;
+}
+
+input {
+  font-family: inherit;
+}
+
+.glass {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+}
+
+.glow-text-yellow {
+  text-shadow: 0 0 10px var(--glow-yellow), 0 0 20px var(--glow-yellow);
+}
+
+.glow-text-cyan {
+  text-shadow: 0 0 10px var(--glow-cyan), 0 0 20px var(--glow-cyan);
+}
+
+.global-sponsor-logo {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  width: 60px;
+  height: 60px;
+  z-index: 1000;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+  transition: transform 0.3s;
+  object-fit: contain;
+}
+
+.global-sponsor-logo:hover {
+  transform: scale(1.1);
+}
+
+.bg-welcome-text {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-family: 'Orbitron', sans-serif;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 50;
+  text-transform: uppercase;
+}

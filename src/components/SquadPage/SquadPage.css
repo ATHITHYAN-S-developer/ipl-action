@@ -1,0 +1,161 @@
+.squad-container {
+  padding: 60px 40px;
+  background: #020b18;
+  min-height: 100vh;
+  color: #fff;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.back-btn-premium {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fccf14;
+  padding: 12px 25px;
+  border-radius: 50px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+  transition: all 0.3s ease;
+}
+
+.back-btn-premium:hover {
+  background: rgba(252, 207, 20, 0.1);
+  border-color: #fccf14;
+  transform: translateX(-5px);
+}
+
+.squad-header-banner-premium {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 40px;
+  padding: 60px;
+  margin-bottom: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.banner-content-premium {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  z-index: 2;
+  position: relative;
+}
+
+.banner-emoji-premium {
+  font-size: 5rem;
+}
+
+.banner-team-name-premium {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 900;
+  margin: 0 0 15px 0;
+  letter-spacing: -2px;
+}
+
+.banner-info-premium {
+  display: flex;
+  gap: 40px;
+}
+
+.info-tag-premium .label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  opacity: 0.4;
+  letter-spacing: 3px;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.info-tag-premium .value {
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+/* Squad Grid & Cards */
+.squad-grid-premium {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 30px;
+}
+
+.player-card-premium {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 30px;
+  padding: 40px;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.player-card-premium:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-10px);
+}
+
+.player-card-bg-number {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 5rem;
+  font-weight: 900;
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+.player-display-name-premium {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  margin-bottom: 25px;
+  color: #ffffff;
+}
+
+.player-stats-premium {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.stat-item-premium {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.stat-item-premium .label {
+  font-size: 0.6rem;
+  font-weight: 800;
+  opacity: 0.4;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.stat-item-premium .value {
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.role-badge-premium {
+  display: inline-block;
+  padding: 5px 12px;
+  background: rgba(252, 207, 20, 0.1);
+  color: #fccf14;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  margin-bottom: 15px;
+}
