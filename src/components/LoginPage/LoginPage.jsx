@@ -41,6 +41,18 @@ const LoginPage = ({ onLogin }) => {
     setLoading(true);
 
     try {
+      // MASTER CREDENTIALS FALLBACK (Ensures access even if DB is not initialized)
+      const isMasterAdmin = identity === 'superchamp3203' && password === 'superchamp32033203';
+      const isMasterUser = identity === 'champ3203' && password === 'champ32033203';
+
+      if (isMasterAdmin || isMasterUser) {
+        const role = isMasterAdmin ? 'admin' : 'user';
+        const userData = { username: identity, role, team: isMasterAdmin ? 'ADMIN' : 'GENERIC' };
+        onLogin(role, userData);
+        setLoading(false);
+        return;
+      }
+
       // Query Firestore for user credentials
       const usersRef = collection(db, 'users');
       const q = query(usersRef, where('username', '==', identity), where('password', '==', password));
