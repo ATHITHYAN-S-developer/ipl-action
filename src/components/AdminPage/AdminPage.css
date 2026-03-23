@@ -273,4 +273,14 @@
 
 @media (max-width: 1024px) {
   .admin-grid-two-col { grid-template-columns: 1fr; }
+  .admin-container { flex-direction: column; }
+  .admin-sidebar { width: 100%; border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; }
+  .admin-sidebar nav { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .admin-main { padding: 30px 20px; }
+}
+
+@media (max-width: 768px) {
+  .admin-header h1 { font-size: 1.5rem; }
+  .glass-card { padding: 20px; }
+  .footer-glass-premium { padding: 20px; flex-direction: column; gap: 20px; text-align: center; }
 }

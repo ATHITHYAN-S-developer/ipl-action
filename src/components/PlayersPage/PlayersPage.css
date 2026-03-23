@@ -238,7 +238,12 @@
 }
 
 @media (max-width: 768px) {
-  .players-title { font-size: 2rem; }
-  .cyber-btn { padding: 0.5rem 0.8rem; font-size: 0.6rem; }
+  .players-container.cyber-bg { padding: 2rem 1rem; }
+  .players-header.cyber-glow-card { padding: 1.5rem; margin-bottom: 2rem; }
+  .players-title { font-size: 1.8rem; }
+  .search-filter-section.cyber-card { padding: 1.5rem; gap: 1rem; margin-bottom: 2rem; }
+  .cyber-btn { padding: 0.5rem 0.8rem; font-size: 0.6rem; flex: 1; min-width: 100px; }
   .player-card.cyber-card { padding: 1.5rem; }
+  .player-display-name { font-size: 1.3rem; }
+  .stat-value { font-size: 1rem; }
 }
