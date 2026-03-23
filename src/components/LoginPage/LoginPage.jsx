@@ -33,6 +33,8 @@ const LoginPage = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -59,7 +61,7 @@ const LoginPage = ({ onLogin }) => {
       
     } catch (err) {
       console.error(err);
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.message === 'Invalid Credentials') {
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || (err.message && err.message.includes('Invalid Credentials'))) {
         setError('ACCESS DENIED: Invalid Credentials.');
       } else {
         setError('ERROR: Verification failed. ' + err.message);
@@ -99,13 +101,7 @@ const LoginPage = ({ onLogin }) => {
 
           <form className="lp-login-form" onSubmit={handleSubmit}>
             {error && (
-              <div style={{
-                padding: '12px', marginBottom: '25px',
-                background: 'rgba(255,77,77,0.1)',
-                border: '1px solid rgba(255,77,77,0.2)',
-                borderRadius: '12px', fontSize: '0.8rem',
-                fontWeight: '700', textAlign: 'center', color: '#ff4d4d'
-              }}>
+              <div className="lp-error-alert">
                 {error}
               </div>
             )}
@@ -129,12 +125,19 @@ const LoginPage = ({ onLogin }) => {
               <div className="lp-input-field-wrapper">
                 <span className="lp-input-icon">🔒</span>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="PASSWORD"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+                <button 
+                  type="button" 
+                  className="lp-password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
               </div>
             </div>
 

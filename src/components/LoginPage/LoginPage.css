@@ -169,6 +169,7 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+  position: relative; /* Added for password toggle positioning */
 }
 
 .lp-input-field-wrapper:focus-within {
@@ -177,8 +178,6 @@
   box-shadow: 0 0 20px rgba(252, 207, 20, 0.1);
 }
 
-.lp-input-icon {
-  margin-right: 15px;
   color: #fccf14;
   font-size: 0.9rem;
 }
