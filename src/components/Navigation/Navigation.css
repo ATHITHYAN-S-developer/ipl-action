@@ -34,6 +34,33 @@
   letter-spacing: 1px;
 }
 
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .nav-container {
+    flex-direction: column;
+    height: auto;
+    padding: 1rem 0.5rem;
+    gap: 1rem;
+  }
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+  .nav-link {
+    font-size: 0.65rem;
+    padding: 6px 10px;
+  }
+  .nav-logo {
+    font-size: 0.9rem;
+  }
+}
+
 .nav-tabs {
   display: flex;
   gap: 30px;
