@@ -68,6 +68,28 @@
   gap: 40px;
 }
 
+@media (max-width: 1024px) {
+  .squad-grid-premium { grid-template-columns: 1fr 1fr; }
+  .banner-team-name-premium { font-size: 2.8rem; }
+}
+
+@media (max-width: 768px) {
+  .squad-container { padding: 40px 20px; }
+  .squad-header-banner-premium { padding: 30px; }
+  .banner-content-premium { flex-direction: column; text-align: center; gap: 20px; }
+  .banner-emoji-premium { font-size: 4rem; }
+  .banner-info-premium { justify-content: center; gap: 20px; flex-wrap: wrap; }
+  .squad-grid-premium { grid-template-columns: 1fr; }
+  .player-card-premium { padding: 30px; }
+}
+
+@media (max-width: 480px) {
+  .banner-team-name-premium { font-size: 1.8rem; }
+  .info-tag-premium .value { font-size: 1.1rem; }
+  .player-display-name-premium { font-size: 1.5rem; }
+  .player-stats-premium { grid-template-columns: 1fr; }
+}
+
 .info-tag-premium .label {
   font-size: 0.7rem;
   font-weight: 800;
