@@ -1,6 +1,7 @@
 import React from 'react';
 import './Navigation.css';
 import sponsorLogo from '../../assets/sponsor-logo-removebg-preview.jpeg';
+import secondLogo from '../../assets/WhatsApp Image 2026-03-24 at 9.02.18 PM.jpeg';
 
 const Navigation = ({ activeTab, onTabChange }) => {
   const tabs = [
@@ -16,7 +17,8 @@ const Navigation = ({ activeTab, onTabChange }) => {
     <nav className="navigation-bar">
       <div className="nav-container">
         <div className="nav-brand">
-          <span className="nav-logo"><img src={sponsorLogo} alt="" className="lp-badge-logo" /></span>
+          <span className="nav-logo"><img src={sponsorLogo} alt="Sponsor" className="lp-badge-logo" /></span>
+          <span className="nav-logo"><img src={secondLogo} alt="League" className="lp-badge-logo" /></span>
           <span className="nav-title">Champ Inter District E - Ryla</span>
         </div>
 
