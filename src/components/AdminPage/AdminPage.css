@@ -413,9 +413,13 @@
 }
 
 .sb-pl-runs {
-  width: 100px !important;
+  width: 70px !important;
   padding: 8px !important;
   text-align: center;
+}
+
+.sb-pl-matches {
+  border-color: rgba(0, 255, 255, 0.2) !important;
 }
 
 .sb-admin-roster-selector select {

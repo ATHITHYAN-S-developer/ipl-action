@@ -10,6 +10,15 @@ import Scoreboard from '../Scoreboard/Scoreboard';
 import SquadPage from '../SquadPage/SquadPage';
 import Feedback from '../Feedback/Feedback';
 
+// Images for marquee
+import img1 from '../../assets/image in home page/WhatsApp Image 2026-03-24 at 4.24.23 PM (1).jpeg';
+import img2 from '../../assets/image in home page/WhatsApp Image 2026-03-24 at 4.24.23 PM (2).jpeg';
+import img3 from '../../assets/image in home page/WhatsApp Image 2026-03-24 at 4.24.23 PM.jpeg';
+import img4 from '../../assets/image in home page/WhatsApp Image 2026-03-24 at 4.24.24 PM.jpeg';
+import img5 from '../../assets/image in home page/WhatsApp Image 2026-03-24 at 4.25.32 PM.jpeg';
+
+const marqueeImages = [img1, img2, img3, img4, img5];
+
 const HomePage = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('home');
   const [selectedTeam, setSelectedTeam] = useState(null);
@@ -19,7 +28,10 @@ const HomePage = ({ user, onLogout }) => {
   const [displayTime, setDisplayTime] = useState('00:00');
   const [loading, setLoading] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [imagePositions, setImagePositions] = useState([0, 1, 2, 3, 4]);
+  const [heroTilt, setHeroTilt] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
+  const heroRef = useRef(null);
 
   useEffect(() => {
     const unsubTeams = onSnapshot(collection(db, 'teams'), (snapshot) => {
@@ -108,11 +120,36 @@ const HomePage = ({ user, onLogout }) => {
   const handleMouseMove = (e) => {
     if (containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
-      setMousePos({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setMousePos({ x, y });
+
+      if (heroRef.current) {
+        const hRect = heroRef.current.getBoundingClientRect();
+        const centerX = hRect.left + hRect.width / 2;
+        const centerY = hRect.top + hRect.height / 2;
+        const dx = e.clientX - centerX;
+        const dy = e.clientY - centerY;
+        
+        // Intensity of tilt
+        const tiltX = (dy / hRect.height) * -15; // Vertical mouse move tilts on X axis
+        const tiltY = (dx / hRect.width) * 15;   // Horizontal mouse move tilts on Y axis
+        setHeroTilt({ x: tiltX, y: tiltY });
+      }
     }
+  };
+
+  const handleGalleryClick = (index) => {
+    const currentPos = imagePositions[index];
+    const shift = 2 - currentPos; // center is pos 2
+    if (shift === 0) return;
+
+    setImagePositions(prev => prev.map(pos => {
+      let newPos = pos + shift;
+      if (newPos < 0) newPos += 5;
+      if (newPos > 4) newPos -= 5;
+      return newPos;
+    }));
   };
 
   const handleTabChange = (tabId) => {
@@ -127,18 +164,34 @@ const HomePage = ({ user, onLogout }) => {
       <main className="home-main">
         {activeTab === 'home' && (
           <div className="home-dashboard premium-glass-theme">
-            <div className="home-hero-premium floating-anim">
-              <div className="hero-overlay"></div>
-              <div className="hero-content-glass">
-                <div className="hero-badge glitch-text" data-text="OFFICIAL LEAGUE PORTAL">OFFICIAL LEAGUE PORTAL</div>
-                <h1 className="hero-title-premium scale-in">
-                  CHAMP INTER DISTRICT E - RYLA<br />
-                  <span className="accent-gold pulse-gold">LEADERSHIP PREMIUM LEAGUE</span>
-                </h1>
-                <p className="hero-subtitle-premium">PREMIUM CRICKET EXPERIENCE • ELITE COMPETITION</p>
-                <div className="hero-cta-glass">
-                  <button className="btn-glass primary" onClick={() => handleTabChange('teams')}>EXPLORE TEAMS</button>
-                  <button className="btn-glass secondary" onClick={() => handleTabChange('scoreboard')}>VIEW LIVE STATS</button>
+            <div 
+              className="home-hero-premium-wrap" 
+              ref={heroRef}
+              style={{
+                perspective: '1000px'
+              }}
+            >
+              <div 
+                className="home-hero-premium hero-3d-card"
+                style={{
+                  transform: `rotateX(${heroTilt.x}deg) rotateY(${heroTilt.y}deg)`,
+                  transition: 'transform 0.1s ease'
+                }}
+              >
+                <div className="hero-overlay-dynamic" style={{
+                  background: `radial-gradient(circle at ${mousePos.x % 100}% ${mousePos.y % 100}%, rgba(0, 255, 255, 0.15), transparent 50%)`
+                }}></div>
+                <div className="hero-content-glass">
+                  <div className="hero-badge glitch-text" data-text="OFFICIAL LEAGUE PORTAL">OFFICIAL LEAGUE PORTAL</div>
+                  <h1 className="hero-title-premium scale-in">
+                    CHAMP INTER DISTRICT<br />
+                    <span className="accent-gold pulse-gold">LEADERSHIP PREMIUM LEAGUE</span>
+                  </h1>
+                  <p className="hero-subtitle-premium">PREMIUM CRICKET EXPERIENCE • ELITE COMPETITION</p>
+                    <div className="hero-cta-glass">
+                      <button className="btn-glass primary" onClick={() => handleTabChange('teams')}>EXPLORE TEAMS</button>
+                      <button className="btn-glass secondary" onClick={() => handleTabChange('scoreboard')}>VIEW LIVE STATS</button>
+                    </div>
                 </div>
               </div>
             </div>
@@ -163,14 +216,44 @@ const HomePage = ({ user, onLogout }) => {
             )}
 
             <div className="metrics-grid-proper three-cols">
-              <MetricCard label="TOTAL TEAMS" value={teams.length} icon="👥" mousePos={mousePos} />
-              <MetricCard label="MATCH" value={displayTime} icon="🏏" mousePos={mousePos} />
-              <MetricCard label="NEXT LIVE" value={matchInfo.nextMatchTime} unit="HRS" icon="⏰" mousePos={mousePos} />
+              <div className="fade-up" style={{ animationDelay: '0.2s' }}>
+                <MetricCard label="TOTAL TEAMS" value={teams.length} icon="👥" mousePos={mousePos} />
+              </div>
+              <div className="fade-up" style={{ animationDelay: '0.4s' }}>
+                <MetricCard label="MATCH" value={displayTime} icon="🏏" mousePos={mousePos} />
+              </div>
+              <div className="fade-up" style={{ animationDelay: '0.6s' }}>
+                <MetricCard label="NEXT LIVE" value={matchInfo.nextMatchTime} unit="HRS" icon="⏰" mousePos={mousePos} />
+              </div>
+            </div>
+
+            {/* PREMIUM 3D STACKED GALLERY */}
+            <div className="premium-gallery-container fade-up" style={{ animationDelay: '0.7s' }}>
+              <div className="section-label-elite">LEADERSHIP SPOTLIGHT</div>
+              <div className="gallery-3d-stack">
+                {marqueeImages.map((img, i) => (
+                  <div 
+                    key={i} 
+                    className={`stack-card card-pos-${imagePositions[i]}`} 
+                    style={{ '--index': i, zIndex: imagePositions[i] === 2 ? 10 : (imagePositions[i] === 1 || imagePositions[i] === 3 ? 5 : 1) }}
+                    onClick={() => handleGalleryClick(i)}
+                  >
+                    <div className="card-glass-frame">
+                      <img src={img} alt={`Elite ${i}`} className="stack-img" />
+                      <div className="card-glare"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="home-features-grid">
-              <InteractiveCard title="Team Auctions" desk="Watch as teams build their squads with strategic bidding. Follow the action in real-time and see which players command the highest prices." mousePos={mousePos} />
-              <InteractiveCard title="Live Matches" desk="Experience cricket like never before. Track live scores, player statistics, and match highlights all in one place." mousePos={mousePos} />
+              <div className="fade-up" style={{ animationDelay: '0.8s' }}>
+                <InteractiveCard title="Team Auctions" desk="Watch as teams build their squads with strategic bidding. Follow the action in real-time and see which players command the highest prices." mousePos={mousePos} />
+              </div>
+              <div className="fade-up" style={{ animationDelay: '1.0s' }}>
+                <InteractiveCard title="Live Matches" desk="Experience cricket like never before. Track live scores, player statistics, and match highlights all in one place." mousePos={mousePos} />
+              </div>
             </div>
           </div>
         )}

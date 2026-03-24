@@ -1,12 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import './PlayersPage.css';
 import { db } from '../../firebase';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, doc } from 'firebase/firestore';
+
+// Team Logos
+import cskLogo from '../../assets/teams images/csk.png';
+import dcLogo from '../../assets/teams images/dc.png';
+import gtLogo from '../../assets/teams images/gt.jpg';
+import kkrLogo from '../../assets/teams images/kkr.png';
+import miLogo from '../../assets/teams images/mi.jpg';
+import pbksLogo from '../../assets/teams images/PBSK.webp';
+import rcbLogo from '../../assets/teams images/rcb.webp';
+import rrLogo from '../../assets/teams images/rr.png';
+import srhLogo from '../../assets/teams images/srh.png';
+
+const teamLogos = {
+  csk: cskLogo,
+  dc: dcLogo,
+  gt: gtLogo,
+  kkr: kkrLogo,
+  mi: miLogo,
+  pbks: pbksLogo,
+  rcb: rcbLogo,
+  rr: rrLogo,
+  srh: srhLogo
+};
 
 const PlayersPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [players, setPlayers] = useState([]);
-  const [liveScores, setLiveScores] = useState({});
+  const [liveStats, setLiveStats] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,13 +45,19 @@ const PlayersPage = () => {
 
     const unsubscribeScores = onSnapshot(doc(db, 'settings', 'teamScores'), (snap) => {
       if (snap.exists()) {
-        const scoresMap = {};
+        const statsMap = {};
         snap.data().teams?.forEach(t => {
           t.players?.forEach(p => {
-            scoresMap[p.id] = p.runs;
+            const data = { runs: p.runs || 0, matches: p.matches || 0 };
+            // Map by ID
+            if (p.id) statsMap[p.id] = data;
+            // Map by Normalized Name as fallback
+            if (p.name) {
+              statsMap[p.name.trim().toLowerCase()] = data;
+            }
           });
         });
-        setLiveScores(scoresMap);
+        setLiveStats(statsMap);
       }
     });
 
@@ -78,7 +107,15 @@ const PlayersPage = () => {
             
             <div className="player-card-header">
               <div className="team-info-cyber">
-                <span className="team-glitch-icon">🏏</span>
+                {teamLogos[(player.team || '').toLowerCase()] ? (
+                  <img 
+                    src={teamLogos[(player.team || '').toLowerCase()]} 
+                    alt={player.team} 
+                    className="player-card-team-logo" 
+                  />
+                ) : (
+                  <span className="team-glitch-icon">🏏</span>
+                )}
                 <span className="team-name">{player.team}</span>
               </div>
               <div className={`cyber-role-tag`}>
@@ -94,11 +131,17 @@ const PlayersPage = () => {
             <div className="player-stats-cyber">
               <div className="cyber-stat-row">
                 <span className="stat-label">MATCHES</span>
-                <span className="stat-value">{player.matches || 0}</span>
+                <span className="stat-value">
+                  {liveStats[player.id]?.matches ?? liveStats[(player.name || '').trim().toLowerCase()]?.matches ?? player.matches ?? 0}
+                </span>
               </div>
-              <div className="cyber-stat-row highlight-cyan full-width-stat">
+              <div className="- [x] Scoreboard Spotlight Glow (Spotlight/cursor animation) <!-- id: 18 -->
+- [x] Scoreboard Elastic Squish (Bouncy card animation) <!-- id: 19 -->
+- [x] Matches Played Tracking (Admin to Players sync) <!-- id: 20 -->stat">
                 <span className="stat-label">LEAGUE POINTS</span>
-                <span className="stat-value">{liveScores[player.id] || 0}</span>
+                <span className="stat-value">
+                  {liveStats[player.id]?.runs ?? liveStats[(player.name || '').trim().toLowerCase()]?.runs ?? 0}
+                </span>
               </div>
             </div>
           </div>

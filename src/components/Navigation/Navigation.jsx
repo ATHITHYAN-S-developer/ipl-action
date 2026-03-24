@@ -1,6 +1,6 @@
 import React from 'react';
 import './Navigation.css';
-import sponsorLogo from '../../assets/sponsor-logo-removebg-preview.png';
+import sponsorLogo from '../../assets/WhatsApp Image 2026-03-24 at 9.02.18 PM.jpeg';
 
 const Navigation = ({ activeTab, onTabChange }) => {
   const tabs = [

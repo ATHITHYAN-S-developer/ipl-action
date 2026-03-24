@@ -150,6 +150,14 @@
 }
 
 .team-glitch-icon { font-size: 1.5rem; }
+
+.player-card-team-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+}
+
 .team-name { font-size: 0.7rem; color: rgba(255, 255, 255, 0.6); font-weight: 800; }
 
 .cyber-role-tag {

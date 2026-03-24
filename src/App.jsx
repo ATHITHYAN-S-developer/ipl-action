@@ -11,9 +11,9 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for local storage admin session
-    const savedAdmin = localStorage.getItem('isAdmin');
-    const savedUserData = localStorage.getItem('userData');
+    // Check for session storage admin session
+    const savedAdmin = sessionStorage.getItem('isAdmin');
+    const savedUserData = sessionStorage.getItem('userData');
     
     if (savedAdmin === 'true') {
       setIsAdmin(true);
@@ -34,14 +34,14 @@ function App() {
 
   const handleLogin = (role, userData) => {
     setUser(userData);
-    localStorage.setItem('userData', JSON.stringify(userData));
+    sessionStorage.setItem('userData', JSON.stringify(userData));
     
     if (role === 'admin') {
       setIsAdmin(true);
-      localStorage.setItem('isAdmin', 'true');
+      sessionStorage.setItem('isAdmin', 'true');
     } else {
       setIsAdmin(false);
-      localStorage.removeItem('isAdmin');
+      sessionStorage.removeItem('isAdmin');
     }
   };
 
@@ -50,8 +50,8 @@ function App() {
       await signOut(auth);
       setUser(null);
       setIsAdmin(false);
-      localStorage.removeItem('isAdmin');
-      localStorage.removeItem('userData');
+      sessionStorage.removeItem('isAdmin');
+      sessionStorage.removeItem('userData');
     } catch (error) {
       console.error('Logout error:', error);
     }

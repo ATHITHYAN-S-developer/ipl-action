@@ -247,7 +247,7 @@ const AdminPage = ({ onLogout }) => {
   const addSbPlayer = () => {
     setScoreboardData(prev => prev.map(t =>
       t.id === selectedSbTeam
-        ? { ...t, players: [...t.players, { name: '', runs: 0 }] }
+        ? { ...t, players: [...t.players, { name: '', runs: 0, matches: 0 }] }
         : t
     ));
   };
@@ -436,18 +436,30 @@ const AdminPage = ({ onLogout }) => {
                   {activeSbTeam.players.map((p, idx) => (
                     <div key={idx} className="sb-admin-player-row">
                       <span className="sb-pl-name-fixed">{p.name}</span>
-                      <input
-                        className="sb-pl-runs"
-                        type="number"
-                        min="0"
-                        placeholder="Points"
-                        value={p.runs}
-                        onChange={e => updateSbPlayer(idx, 'runs', Number(e.target.value))}
-                      />
+                      <div style={{ display:'flex', gap:'5px', alignItems:'center' }}>
+                        <label style={{ fontSize:'0.6rem', opacity:0.5 }}>PTS</label>
+                        <input
+                          className="sb-pl-runs"
+                          type="number"
+                          min="0"
+                          value={p.runs}
+                          onChange={e => updateSbPlayer(idx, 'runs', Number(e.target.value))}
+                        />
+                      </div>
+                      <div style={{ display:'flex', gap:'5px', alignItems:'center' }}>
+                        <label style={{ fontSize:'0.6rem', opacity:0.5 }}>MAT</label>
+                        <input
+                          className="sb-pl-runs sb-pl-matches" 
+                          type="number"
+                          min="0"
+                          value={p.matches || 0}
+                          onChange={e => updateSbPlayer(idx, 'matches', Number(e.target.value))}
+                        />
+                      </div>
                       <button
                         className="btn-delete-small"
                         onClick={() => removeSbPlayer(idx)}
-                        title="Remove from scorecard"
+                        title="Remove"
                       >✕</button>
                     </div>
                   ))}
@@ -469,7 +481,7 @@ const AdminPage = ({ onLogout }) => {
                         if(player) {
                           setScoreboardData(prev => prev.map(t => 
                             t.id === selectedSbTeam && !t.players.some(p => p.name === player.name)
-                              ? { ...t, players: [...t.players, { name: player.name, runs: 0 }] } 
+                              ? { ...t, players: [...t.players, { name: player.name, runs: 0, matches: 0 }] } 
                               : t
                           ));
                         }
