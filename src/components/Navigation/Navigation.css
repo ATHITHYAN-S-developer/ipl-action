@@ -22,8 +22,9 @@
 }
 
 .nav-logo img {
-  height: 30px;
-  filter: brightness(1.2);
+  height: 42px;
+  filter: brightness(1.2) drop-shadow(0 0 6px rgba(252, 207, 20, 0.3));
+  border-radius: 4px;
 }
 
 .nav-title {
