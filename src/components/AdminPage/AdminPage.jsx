@@ -111,7 +111,8 @@ const AdminPage = ({ onLogout }) => {
 
         // Add Players
         for (const name of plist) {
-          await addDoc(collection(db, 'players'), {
+          const playerId = `${id}-${name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+          await setDoc(doc(db, 'players', playerId), {
             name,
             team: id,
             runs: 0,
