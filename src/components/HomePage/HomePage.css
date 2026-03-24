@@ -310,25 +310,32 @@
 }
 
 @media (max-width: 768px) {
-  .home-dashboard { padding: 40px 20px; gap: 40px; }
-  .home-hero-premium { height: auto; padding: 40px 20px; }
-  .hero-content-glass { padding: 30px; border-radius: 25px; }
-  .hero-title-premium { font-size: 2.2rem; }
+  .home-dashboard { padding: 30px 15px; gap: 40px; }
+  .home-hero-premium { height: auto; padding: 40px 15px; min-height: 400px; }
+  .hero-content-glass { padding: 25px; border-radius: 25px; width: 100%; }
+  .hero-title-premium { font-size: 1.8rem; margin-bottom: 1.5rem; }
   .home-features-grid { grid-template-columns: 1fr; gap: 20px; }
-  .metrics-grid-proper { grid-template-columns: 1fr 1fr; gap: 15px; }
-  .matches-grid-wrapper { grid-template-columns: 1fr; }
-  .match-card-figma { padding: 30px 20px; }
-  .section-title-premium { font-size: 2rem; }
+  .metrics-grid-proper { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .metric-panel-glass { padding: 25px 15px; }
+  .metric-value { font-size: 2rem; }
+
+  /* Live Score Banner Mobile */
+  .live-score-banner-glass { padding: 30px 15px; }
+  .score-main-flex { gap: 15px; margin-top: 15px; }
+  .score-team { gap: 10px; }
+  .team-name-lg { font-size: 1rem; }
+  .team-score-num { font-size: 1.5rem; }
+  .score-vs-premium { width: 35px; height: 35px; font-size: 0.7rem; }
 }
 
 @media (max-width: 480px) {
-  .hero-title-premium { font-size: 1.8rem; }
-  .hero-cta-glass { flex-direction: column; width: 100%; }
-  .btn-glass { width: 100%; }
-  .metric-value { font-size: 2rem; }
+  .hero-title-premium { font-size: 1.4rem; letter-spacing: 0; }
+  .hero-cta-glass { flex-direction: column; gap: 12px; width: 100%; }
+  .btn-glass { width: 100%; padding: 12px; font-size: 0.75rem; }
   .metrics-grid-proper { grid-template-columns: 1fr; }
-  .match-vs-main { flex-direction: column; gap: 10px; }
-  .vs-badge { padding: 5px 15px; }
+  .score-main-flex { flex-direction: column; }
+  .score-team { width: 100%; justify-content: space-between; }
+  .live-badge-premium { font-size: 0.6rem; padding: 3px 10px; }
 }
 
 /* ── Premium Teams Page ── */

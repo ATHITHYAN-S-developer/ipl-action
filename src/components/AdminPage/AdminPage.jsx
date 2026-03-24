@@ -65,9 +65,50 @@ const AdminPage = ({ onLogout }) => {
   };
 
   const handleDeletePlayer = async (id) => {
-    if (window.confirm('Delete player?')) await deleteDoc(doc(db, 'players', id));
+    if (window.confirm('Delete this player?')) {
+      await deleteDoc(doc(db, 'players', id));
+    }
   };
 
+  const handleDeleteTeam = async (id) => {
+    if (window.confirm('Delete this team? This will NOT delete its players but will remove the team from the portal.')) {
+      await deleteDoc(doc(db, 'teams', id));
+    }
+  };
+
+  const loadGTData = async () => {
+    const gtPlayers = [
+      "Rtr jeeva.s", "Rtr. Sureka P", "Rtr. Mahenoor Khan", "Sadhana", 
+      "Sree Mati M M", "N. GOBIKA", "Rtr Amritha P", "Rtr.preethi G", 
+      "Rtr.BANU K G", "Vanitha S", "Farhana"
+    ];
+
+    try {
+      // Create Team GT
+      const teamId = 'gt';
+      await setDoc(doc(db, 'teams', teamId), {
+        id: teamId,
+        name: 'GT',
+        budget: 80,
+        spent: 0,
+        icon: '🏏'
+      });
+
+      // Add Players
+      for (const name of gtPlayers) {
+        await addDoc(collection(db, 'players'), {
+          name,
+          team: teamId,
+          runs: 0,
+          wickets: 0
+        });
+      }
+      alert('Team GT and 11 players added successfully!');
+    } catch (e) {
+      console.error(e);
+      alert('Error adding GT data');
+    }
+  };
   const handleUpdateScore = async (e) => {
     e.preventDefault();
     try { await setDoc(doc(db, 'settings', 'liveScore'), scores); alert('Scores Updated!'); }
@@ -149,17 +190,23 @@ const AdminPage = ({ onLogout }) => {
                   <button type="submit" className="save-btn">CREATE TEAM</button>
                 </form>
               </div>
-              <div className="update-form-card glass-card">
-                <h3>TEAMS IN DB</h3>
-                <div className="teams-list-admin">
-                  {teams.map(t => (
-                    <div key={t.id} className="team-item-admin">
-                      <span>{t.icon} {t.name}</span>
-                      <span style={{ color: '#fccf14' }}>₹{t.spent} / {t.budget} Cr</span>
-                    </div>
-                  ))}
+                <div className="admin-list-card">
+                  <h3>EXISTING TEAMS</h3>
+                  <button onClick={loadGTData} className="btn-secondary" style={{ marginBottom: '15px', width: '100%', fontSize: '0.7rem' }}>
+                    ⚡ QUICK LOAD TEAM GT
+                  </button>
+                  <div className="admin-items-list">
+                    {teams.map(t => (
+                      <div key={t.id} className="team-item-admin">
+                        <div className="item-info">
+                          <span className="item-name">{t.icon} {t.name}</span>
+                          <span className="item-meta">₹{t.spent} / {t.budget} Cr</span>
+                        </div>
+                        <button onClick={() => handleDeleteTeam(t.id)} className="btn-delete-small">🗑️</button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
             </div>
           )}
 

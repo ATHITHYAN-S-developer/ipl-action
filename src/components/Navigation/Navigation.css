@@ -41,23 +41,33 @@
 }
 
 @media (max-width: 768px) {
+  .navigation-bar {
+    padding: 10px 20px;
+  }
+  .nav-brand {
+    gap: 10px;
+  }
+  .nav-title {
+    font-size: 0.85rem;
+    line-height: 1.2;
+  }
+  .nav-logo img {
+    height: 24px;
+  }
   .nav-container {
     flex-direction: column;
-    height: auto;
-    padding: 1rem 0.5rem;
-    gap: 1rem;
+    padding: 10px 0;
+    gap: 15px;
   }
-  .nav-links {
-    flex-wrap: wrap;
+  .nav-tabs {
+    gap: 15px;
+    width: 100%;
     justify-content: center;
-    gap: 0.8rem;
+    flex-wrap: wrap;
   }
-  .nav-link {
-    font-size: 0.65rem;
-    padding: 6px 10px;
-  }
-  .nav-logo {
-    font-size: 0.9rem;
+  .nav-tab {
+    font-size: 0.7rem;
+    padding: 5px 0;
   }
 }
 
