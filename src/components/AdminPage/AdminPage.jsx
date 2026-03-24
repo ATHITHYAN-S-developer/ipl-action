@@ -155,7 +155,7 @@ const AdminPage = ({ onLogout }) => {
                   <input placeholder="Name" value={newPlayer.name} onChange={e => setNewPlayer({...newPlayer, name: e.target.value})} required />
                   <select value={newPlayer.team} onChange={e => setNewPlayer({...newPlayer, team: e.target.value})} required>
                     <option value="">Select Team</option>
-                    {teams.map(t => <option key={t.id} value={t.name}>{t.name}</option>)}
+                    {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                   </select>
                   <button type="submit" className="save-btn">ADD PLAYER</button>
                 </form>

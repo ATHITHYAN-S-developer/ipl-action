@@ -13,7 +13,7 @@ const SquadPage = ({ team, onBack }) => {
   useEffect(() => {
     const q = query(
       collection(db, 'players'),
-      where('team', '==', team.name)
+      where('team', '==', team.id)
     );
 
     const unsub = onSnapshot(q, (snapshot) => {
