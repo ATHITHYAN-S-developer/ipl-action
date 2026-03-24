@@ -5,16 +5,53 @@
   color: #fff;
   font-family: 'Krona One', sans-serif;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.players-container.no-players {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.admin-notice.cyber-card {
+  background: rgba(252, 207, 20, 0.05);
+  border: 1px dashed #fccf14;
+  padding: 1.5rem;
+  max-width: 500px;
+  border-radius: 8px;
+  margin-top: 2rem;
+}
+
+.admin-notice p {
+  color: #fccf14;
+  font-size: 0.8rem;
+  line-height: 1.6;
 }
 
 .players-header.cyber-glow-card {
   text-align: center;
   margin-bottom: 3rem;
-  padding: 2rem;
-  background: rgba(10, 20, 40, 0.8);
-  border: 1px solid rgba(0, 255, 255, 0.3);
-  box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
-  border-radius: 4px;
+  padding: 3rem 2rem;
+  background: rgba(10, 20, 40, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 40px rgba(0, 255, 255, 0.1);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.players-header.cyber-glow-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(0, 255, 255, 0.05) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .players-title {
@@ -100,13 +137,23 @@
 }
 
 .player-card.cyber-card {
-  background: rgba(10, 25, 50, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(15, 25, 45, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 2rem;
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.player-card.cyber-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  border-color: rgba(0, 255, 255, 0.5);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 255, 255, 0.2);
+  background: rgba(20, 35, 60, 0.6);
 }
 
 .player-card.cyber-card::after {
@@ -226,6 +273,45 @@
 
 .animate-fade-up {
   animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.loading-players.cyber-bg {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  gap: 2rem;
+  background: #010816;
+}
+
+.cyber-loader {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(0, 255, 255, 0.1);
+  border-top: 4px solid #00ffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+}
+
+.loading-text {
+  font-size: 0.8rem;
+  letter-spacing: 4px;
+  color: #00ffff;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  animation: pulse 2s infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
 }
 
 @media (max-width: 768px) {

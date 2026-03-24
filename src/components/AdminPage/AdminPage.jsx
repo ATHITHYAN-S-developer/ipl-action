@@ -35,6 +35,8 @@ const AdminPage = ({ onLogout }) => {
   useEffect(() => {
     const unsubPlayers = onSnapshot(collectionGroup(db, 'roster'), (snapshot) => {
       setPlayers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (err) => {
+      console.error("Admin Page Player Load Error:", err);
     });
 
     const unsubTeams = onSnapshot(collection(db, 'teams'), (snapshot) => {

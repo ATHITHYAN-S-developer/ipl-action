@@ -41,6 +41,9 @@ const PlayersPage = () => {
       }));
       setPlayers(playerList);
       setLoading(false);
+    }, (error) => {
+      console.error("Firestore Error (Players):", error);
+      setLoading(false);
     });
 
     const unsubscribeScores = onSnapshot(doc(db, 'settings', 'teamScores'), (snap) => {
@@ -74,7 +77,24 @@ const PlayersPage = () => {
            playerTeam.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  if (loading) return <div className="loading-players">LOADING DATABASE...</div>;
+  if (loading) return (
+    <div className="loading-players cyber-bg">
+      <div className="cyber-loader"></div>
+      <div className="loading-text">ACCESSING PLAYER DATABASE...</div>
+    </div>
+  );
+
+  if (players.length === 0) return (
+    <div className="players-container cyber-bg no-players">
+      <div className="players-header cyber-glow-card">
+        <h1 className="players-title">DATABASE EMPTY</h1>
+        <p className="players-subtitle highlight-yellow">No players found in the system roster.</p>
+      </div>
+      <div className="admin-notice cyber-card">
+        <p>Tip: Ensure you have "Bulk Loaded" the teams in the Admin Panel or created players manually.</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="players-container cyber-bg">
@@ -135,9 +155,7 @@ const PlayersPage = () => {
                   {liveStats[player.id]?.matches ?? liveStats[(player.name || '').trim().toLowerCase()]?.matches ?? player.matches ?? 0}
                 </span>
               </div>
-              <div className="- [x] Scoreboard Spotlight Glow (Spotlight/cursor animation) <!-- id: 18 -->
-- [x] Scoreboard Elastic Squish (Bouncy card animation) <!-- id: 19 -->
-- [x] Matches Played Tracking (Admin to Players sync) <!-- id: 20 -->stat">
+              <div className="cyber-stat-row">
                 <span className="stat-label">LEAGUE POINTS</span>
                 <span className="stat-value">
                   {liveStats[player.id]?.runs ?? liveStats[(player.name || '').trim().toLowerCase()]?.runs ?? 0}
