@@ -29,7 +29,7 @@ const AdminPage = ({ onLogout }) => {
   const [editingFeedback, setEditingFeedback] = useState(null);
 
   // Form States
-  const [newPlayer, setNewPlayer] = useState({ name: '', role: 'Batsman', team: '', matches: 0, runs: 0, wickets: 0, average: 0 });
+  const [newPlayer, setNewPlayer] = useState({ name: '', role: 'Batsman', team: '', matches: 0, points: 0 });
   const [newTeam, setNewTeam] = useState({ name: '', icon: '🏏', id: '', budget: 80, spent: 0 });
 
   useEffect(() => {
@@ -77,7 +77,7 @@ const AdminPage = ({ onLogout }) => {
     try {
       const playerId = `${newPlayer.team}-${newPlayer.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
       await setDoc(doc(db, 'teams', newPlayer.team, 'roster', playerId), newPlayer);
-      setNewPlayer({ ...newPlayer, name: '', runs: 0, wickets: 0 });
+      setNewPlayer({ ...newPlayer, name: '', points: 0 });
       alert('Player Added!');
     } catch (err) {
       console.error(err);
@@ -161,8 +161,10 @@ const AdminPage = ({ onLogout }) => {
           await setDoc(doc(db, 'teams', id, 'roster', playerId), {
             name,
             team: id,
-            runs: 0,
-            wickets: 0
+            name,
+            team: id,
+            points: 0,
+            matches: 0
           });
         }
       }
@@ -241,7 +243,7 @@ const AdminPage = ({ onLogout }) => {
       if (t.id !== selectedSbTeam) return t;
       const newPlayers = [...t.players];
       newPlayers[idx] = { ...newPlayers[idx], [field]: value };
-      const newTotal = newPlayers.reduce((sum, p) => sum + (Number(p.runs) || 0), 0);
+      const newTotal = newPlayers.reduce((sum, p) => sum + (Number(p.points || p.runs) || 0), 0);
       return { ...t, players: newPlayers, totalScore: newTotal };
     }));
   };
@@ -258,7 +260,7 @@ const AdminPage = ({ onLogout }) => {
     setScoreboardData(prev => prev.map(t => {
       if (t.id !== selectedSbTeam) return t;
       const newPlayers = t.players.filter((_, i) => i !== idx);
-      const newTotal = newPlayers.reduce((sum, p) => sum + (Number(p.runs) || 0), 0);
+      const newTotal = newPlayers.reduce((sum, p) => sum + (Number(p.points || p.runs) || 0), 0);
       return { ...t, players: newPlayers, totalScore: newTotal };
     }));
   };
@@ -440,8 +442,8 @@ const AdminPage = ({ onLogout }) => {
                           className="sb-pl-runs"
                           type="number"
                           min="0"
-                          value={p.runs}
-                          onChange={e => updateSbPlayer(idx, 'runs', Number(e.target.value))}
+                          value={p.points || p.runs || 0}
+                          onChange={e => updateSbPlayer(idx, 'points', Number(e.target.value))}
                         />
                       </div>
                       <div style={{ display:'flex', gap:'5px', alignItems:'center' }}>
@@ -471,7 +473,7 @@ const AdminPage = ({ onLogout }) => {
                       if(e.target.value === "extras") {
                         setScoreboardData(prev => prev.map(t => 
                           t.id === selectedSbTeam 
-                            ? { ...t, players: [...t.players, { name: 'Extras', runs: 0 }] } 
+                            ? { ...t, players: [...t.players, { name: 'Extras', points: 0 }] } 
                             : t
                         ));
                       } else if(e.target.value) {
@@ -479,7 +481,7 @@ const AdminPage = ({ onLogout }) => {
                         if(player) {
                           setScoreboardData(prev => prev.map(t => 
                             t.id === selectedSbTeam && !t.players.some(p => p.name === player.name)
-                              ? { ...t, players: [...t.players, { name: player.name, runs: 0, matches: 0 }] } 
+                              ? { ...t, players: [...t.players, { name: player.name, points: 0, matches: 0 }] } 
                               : t
                           ));
                         }

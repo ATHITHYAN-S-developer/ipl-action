@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, doc } from 'firebase/firestore';
 import './SquadPage.css';
 
 import pbskLogo from '../../assets/teams images/PBSK.webp';
@@ -13,129 +13,134 @@ import rcbLogo from '../../assets/teams images/rcb.webp';
 import rrLogo from '../../assets/teams images/rr.png';
 import srhLogo from '../../assets/teams images/srh.png';
 
-const SquadPage = ({ team, onBack }) => {
-  const [activeFilter, setActiveFilter] = useState('All');
-  const [squadMembers, setSquadMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
+const teamThemes = {
+  csk:  { gradient: 'radial-gradient(circle at 30% 20%, #fbbf24 0%, #1c1838 60%)', dot: '#fbbf24' },
+  mi:   { gradient: 'radial-gradient(circle at 30% 20%, #3b82f6 0%, #0f172a 60%)', dot: '#60a5fa' },
+  rcb:  { gradient: 'radial-gradient(circle at 30% 20%, #ef4444 0%, #1a0a0a 60%)', dot: '#f87171' },
+  kkr:  { gradient: 'radial-gradient(circle at 30% 20%, #7c3aed 0%, #0f0a1e 60%)', dot: '#a78bfa' },
+  dc:   { gradient: 'radial-gradient(circle at 30% 20%, #2563eb 0%, #0c1b3a 60%)', dot: '#60a5fa' },
+  gt:   { gradient: 'radial-gradient(circle at 30% 20%, #06b6d4 0%, #042f2e 60%)', dot: '#22d3ee' },
+  rr:   { gradient: 'radial-gradient(circle at 30% 20%, #ec4899 0%, #1d0520 60%)', dot: '#f472b6' },
+  srh:  { gradient: 'radial-gradient(circle at 30% 20%, #f97316 0%, #1c0d00 60%)', dot: '#fb923c' },
+  pbks: { gradient: 'radial-gradient(circle at 30% 20%, #e11d48 0%, #200c14 60%)', dot: '#fb7185' },
+};
 
-  const filters = ['All', 'Batsman', 'Bowler', 'All-rounder', 'Wicketkeeper'];
+const getTeamImage = (id) => {
+  const n = (id || '').toLowerCase();
+  switch (n) {
+    case 'pbks': return pbskLogo;
+    case 'csk':  return cskLogo;
+    case 'dc':   return dcLogo;
+    case 'gt':   return gtLogo;
+    case 'kkr':  return kkrLogo;
+    case 'mi':   return miLogo;
+    case 'rcb':  return rcbLogo;
+    case 'rr':   return rrLogo;
+    case 'srh':  return srhLogo;
+    default:     return null;
+  }
+};
+
+const SquadPage = ({ team, onBack }) => {
+  const [squadMembers, setSquadMembers] = useState([]);
+  const [liveStats, setLiveStats] = useState({});
+  const [loading, setLoading] = useState(true);
+  const teamId = (team.id || '').toLowerCase();
+  const theme = teamThemes[teamId] || { gradient: 'radial-gradient(circle at 30% 20%, #4f46e5 0%, #0f0f1e 60%)', dot: '#818cf8' };
+  const teamImg = getTeamImage(team.id);
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, 'teams', team.id, 'roster'), (snapshot) => {
+    const unsubscribePlayers = onSnapshot(collection(db, 'teams', team.id, 'roster'), (snapshot) => {
       setSquadMembers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       setLoading(false);
     });
 
-    return () => unsub();
+    const unsubscribeLive = onSnapshot(doc(db, 'settings', 'teamScores'), (snap) => {
+      if (snap.exists()) {
+        const statsMap = {};
+        snap.data().teams?.forEach(t => {
+          t.players?.forEach(p => {
+            const data = { points: p.runs || p.points || 0, matches: p.matches || 0 };
+            if (p.id) statsMap[p.id] = data;
+            if (p.name) statsMap[p.name.trim().toLowerCase()] = data;
+          });
+        });
+        setLiveStats(statsMap);
+      }
+    });
+
+    return () => {
+      unsubscribePlayers();
+      unsubscribeLive();
+    };
   }, [team.id]);
 
-  const filteredMembers = squadMembers.filter(member => 
-    activeFilter === 'All' || member.role === activeFilter
-  );
-
-  const getTeamImage = (id) => {
-    const normalizedId = (id || '').toLowerCase();
-    switch (normalizedId) {
-      case 'pbks': return pbskLogo;
-      case 'csk': return cskLogo;
-      case 'dc': return dcLogo;
-      case 'gt': return gtLogo;
-      case 'kkr': return kkrLogo;
-      case 'mi': return miLogo;
-      case 'rcb': return rcbLogo;
-      case 'rr': return rrLogo;
-      case 'srh': return srhLogo;
-      default: return null;
-    }
-  };
-
-  const getTeamIcon = (name) => {
-    if (team.icon) return team.icon;
-    const n = (name || '').toLowerCase();
-    if (n.includes('mumbai')) return '🏏';
-    if (n.includes('chennai')) return '🦁';
-    if (n.includes('royal')) return '👑';
-    return '🛡️';
-  };
-
-  const getTeamColor = (name) => {
-    const n = (name || '').toLowerCase();
-    if (n.includes('mumbai')) return '#00ffff';
-    if (n.includes('chennai')) return '#fccf14';
-    if (n.includes('royal')) return '#e53e3e';
-    if (n.includes('delhi')) return '#0088ff';
-    if (n.includes('kolkata')) return '#805ad5';
-    return '#fccf14';
-  };
-
-  const teamColor = getTeamColor(team.name);
-
   return (
-    <div className="squad-container">
-      <button className="back-btn-premium" onClick={onBack}>
-        <span className="back-arrow">←</span> COMMAND: RETURN TO ALL TEAMS
-      </button>
+    <div className="squad-page">
+      <button className="squad-back-btn" onClick={onBack}>← BACK TO ALL TEAMS</button>
 
       {loading ? (
-        <div className="cyber-loading">
-          <div className="loading-spinner"></div>
-          <p>ACCESSING SQUAD MATRIX...</p>
+        <div className="squad-loading">
+          <div className="squad-spinner"></div>
+          <p>LOADING SQUAD...</p>
         </div>
       ) : (
         <>
-          <div className="squad-header-banner-premium" style={{ borderLeft: `8px solid ${teamColor}` }}>
-            <div className="banner-glow-overlay" style={{ 
-              background: `radial-gradient(circle at 70% 50%, ${teamColor}1a 0%, transparent 70%)` 
-            }}></div>
-            <div className="banner-content-premium">
-              {getTeamImage(team.id) ? (
-                <img src={getTeamImage(team.id)} alt={`${team.name} Logo`} className="team-image-banner" />
-              ) : (
-                <span className="banner-emoji-premium pulse-gold">{getTeamIcon(team.name)}</span>
-              )}
-              <div className="banner-text-premium">
-                <h1 className="banner-team-name-premium">{(team.name || '').toUpperCase()}</h1>
-                <div className="banner-info-premium">
-                  <div className="info-tag-premium">
-                    <span className="label">TREASURY LEFT</span>
-                    <span className="value accent-gold">₹{(team.budget || 80) - (team.spent || 0)} Cr</span>
-                  </div>
-                  <div className="info-tag-premium">
-                    <span className="label">SQUAD ENTRIES</span>
-                    <span className="value">{squadMembers.length} ACTIVE</span>
-                  </div>
+          <div className="squad-hero" style={{ '--squad-gradient': theme.gradient, '--squad-dot': theme.dot }}>
+            <div className="squad-hero-bg" />
+            <div className="squad-hero-dot" />
+            <div className="squad-hero-content">
+              <div className="squad-hero-avatar">
+                {teamImg
+                  ? <img src={teamImg} alt={team.name} className="squad-hero-logo" />
+                  : <span className="squad-hero-abbr">{(team.name||'T').substring(0,3).toUpperCase()}</span>
+                }
+              </div>
+              <div className="squad-hero-text">
+                <h1 className="squad-hero-name">{(team.name || '').toUpperCase()}</h1>
+                <div className="squad-hero-tags">
+                  <span className="squad-hero-tag">{squadMembers.length} Players</span>
+                  <span className="squad-hero-tag">IPL Franchise</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="squad-section-premium">
-            <div className="squad-grid-premium">
-              {filteredMembers.length > 0 ? (
-                filteredMembers.map((member, index) => (
-                  <div key={member.id} className="player-card-premium" style={{ animationDelay: `${index * 0.05}s` }}>
-                    <div className="player-card-bg-number">{index + 1}</div>
-                    <div className="role-badge-premium">{(member.role || 'PLAYER').toUpperCase()}</div>
-                    <h2 className="player-display-name-premium">{member.name}</h2>
-                    
-                    <div className="player-stats-premium">
-                      <div className="stat-item-premium">
-                        <span className="label">MATCHES</span>
-                        <span className="value">{member.matches || 0}</span>
-                      </div>
-                      <div className="stat-item-premium">
-                        <span className="label">RUNS</span>
-                        <span className="value" style={{ color: '#00ffff' }}>{member.runs || 0}</span>
-                      </div>
+          <div className="squad-grid">
+            {squadMembers.length > 0 ? (
+              squadMembers.map((member, index) => {
+                const pg = theme.gradient;
+                const pd = theme.dot;
+                const stats = liveStats[member.id] || liveStats[(member.name || '').trim().toLowerCase()] || { matches: member.matches || 0, points: member.points || member.runs || 0 };
+                
+                return (
+                  <div
+                    key={member.id}
+                    className="squad-player-card"
+                    style={{ '--pg': pg, '--pd': pd, animationDelay: `${index * 0.05}s` }}
+                  >
+                    <div className="spc-bg" />
+                    <div className="spc-dot" />
+                    <div className="spc-number">#{index + 1}</div>
+                    <div className="spc-avatar">
+                      <span>{(member.name || '?').split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase()}</span>
+                    </div>
+                    <div className="spc-info">
+                      <h3 className="spc-name">{member.name}</h3>
+                      <p className="spc-role">{(member.role || 'Player').toUpperCase()}</p>
+                    </div>
+                    <div className="spc-tags">
+                      <span className="spc-tag">🏏 {stats.matches} Matches</span>
+                      <span className="spc-tag">⚡ {stats.points} Points</span>
                     </div>
                   </div>
-                ))
-              ) : (
-                <div className="no-squad-msg" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '100px', opacity: 0.3 }}>
-                  <p>NO PLAYERS REGISTERED IN THIS SQUAD DATA-FIELD.</p>
-                </div>
-              )}
-            </div>
+                );
+              })
+            ) : (
+              <div className="squad-empty">
+                <p>NO PLAYERS IN THIS SQUAD</p>
+              </div>
+            )}
           </div>
         </>
       )}

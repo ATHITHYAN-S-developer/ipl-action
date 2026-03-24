@@ -176,7 +176,7 @@ const Scoreboard = () => {
                       {(team.players || []).map((p, i) => (
                         <tr key={i} className={p.name === 'Extras' ? 'extras-row' : ''}>
                           <td className="p-name-cell">{p.name}</td>
-                          <td className="p-runs-cell" style={{ color: team.color }}>{p.runs}</td>
+                          <td className="p-runs-cell" style={{ color: team.color }}>{p.points || p.runs || 0}</td>
                         </tr>
                       ))}
                     </tbody>

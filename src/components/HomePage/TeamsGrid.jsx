@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './HomePage.css';
+import './TeamsGrid.css';
 
 import pbskLogo from '../../assets/teams images/PBSK.webp';
 import cskLogo from '../../assets/teams images/csk.png';
@@ -11,146 +11,104 @@ import rcbLogo from '../../assets/teams images/rcb.webp';
 import rrLogo from '../../assets/teams images/rr.png';
 import srhLogo from '../../assets/teams images/srh.png';
 
+const teamThemes = {
+  csk:  { gradient: 'radial-gradient(circle at 30% 20%, #fbbf24 0%, #1c1838 60%)', dot: '#fbbf24',  abbr: 'CSK' },
+  mi:   { gradient: 'radial-gradient(circle at 30% 20%, #3b82f6 0%, #0f172a 60%)', dot: '#60a5fa',  abbr: 'MI'  },
+  rcb:  { gradient: 'radial-gradient(circle at 30% 20%, #ef4444 0%, #1a0a0a 60%)', dot: '#f87171',  abbr: 'RCB' },
+  kkr:  { gradient: 'radial-gradient(circle at 30% 20%, #7c3aed 0%, #0f0a1e 60%)', dot: '#a78bfa',  abbr: 'KKR' },
+  dc:   { gradient: 'radial-gradient(circle at 30% 20%, #2563eb 0%, #0c1b3a 60%)', dot: '#60a5fa',  abbr: 'DC'  },
+  gt:   { gradient: 'radial-gradient(circle at 30% 20%, #06b6d4 0%, #042f2e 60%)', dot: '#22d3ee',  abbr: 'GT'  },
+  rr:   { gradient: 'radial-gradient(circle at 30% 20%, #ec4899 0%, #1d0520 60%)', dot: '#f472b6',  abbr: 'RR'  },
+  srh:  { gradient: 'radial-gradient(circle at 30% 20%, #f97316 0%, #1c0d00 60%)', dot: '#fb923c',  abbr: 'SRH' },
+  pbks: { gradient: 'radial-gradient(circle at 30% 20%, #e11d48 0%, #200c14 60%)', dot: '#fb7185',  abbr: 'PBKS'},
+};
+
 const TeamsGrid = ({ teams, loading, error, onViewSquad }) => {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const containerRef = useRef(null);
-
-  const handleMouseMove = (e) => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setMousePos({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    }
-  };
-
   return (
-    <section className="teams-page-container" ref={containerRef} onMouseMove={handleMouseMove}>
-      <div className="teams-page-header">
-        <h1 className="section-title-premium scale-in">PREMIUM LEAGUE CONTENDERS</h1>
-        <p className="section-subtitle-premium">OFFICIAL ROSTER DATA SYNCED WITH CLOUD</p>
+    <section className="tgrid-section">
+      <div className="tgrid-header">
+        <h1 className="tgrid-title">PREMIUM LEAGUE CONTENDERS</h1>
+        <p className="tgrid-subtitle">OFFICIAL ROSTER DATA SYNCED WITH CLOUD</p>
       </div>
-      
+
       {loading ? (
-        <div className="cyber-loading">
-          <div className="loading-spinner"></div>
+        <div className="tgrid-loading">
+          <div className="tgrid-spinner"></div>
           <p>RETRIEVING TEAM DATA...</p>
         </div>
       ) : teams.length > 0 ? (
-        <div className="teams-grid-premium">
+        <div className="tgrid-grid">
           {teams.map((team, index) => (
-            <TeamCardPremium key={team.id} team={team} index={index} mousePos={mousePos} onViewSquad={onViewSquad} />
+            <TeamCard key={team.id} team={team} index={index} onViewSquad={onViewSquad} />
           ))}
         </div>
       ) : (
-        <div className="no-teams-container-glass">
-          <p className="no-data-text">NO TEAMS FOUND IN SYSTEM</p>
-          <p className="hint-text">Admin must initialize the league roster in the dashboard.</p>
+        <div className="tgrid-empty">
+          <p>NO TEAMS FOUND IN SYSTEM</p>
+          <span>Admin must initialize the league roster in the dashboard.</span>
         </div>
       )}
     </section>
   );
 };
 
-const TeamCardPremium = ({ team, index, mousePos, onViewSquad }) => {
-  const cardRef = useRef(null);
-  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+const getTeamImage = (id) => {
+  const normalizedId = (id || '').toLowerCase();
+  switch (normalizedId) {
+    case 'pbks': return pbskLogo;
+    case 'csk':  return cskLogo;
+    case 'dc':   return dcLogo;
+    case 'gt':   return gtLogo;
+    case 'kkr':  return kkrLogo;
+    case 'mi':   return miLogo;
+    case 'rcb':  return rcbLogo;
+    case 'rr':   return rrLogo;
+    case 'srh':  return srhLogo;
+    default:     return null;
+  }
+};
 
-  const getTeamImage = (id) => {
-    const normalizedId = (id || '').toLowerCase();
-    switch (normalizedId) {
-      case 'pbks': return pbskLogo;
-      case 'csk': return cskLogo;
-      case 'dc': return dcLogo;
-      case 'gt': return gtLogo;
-      case 'kkr': return kkrLogo;
-      case 'mi': return miLogo;
-      case 'rcb': return rcbLogo;
-      case 'rr': return rrLogo;
-      case 'srh': return srhLogo;
-      default: return null;
-    }
-  };
-
-  const getTeamIcon = (name) => {
-    if (team.icon) return team.icon;
-    const n = (name || '').toLowerCase();
-    if (n.includes('mumbai')) return '🏏';
-    if (n.includes('chennai')) return '🦁';
-    if (n.includes('royal')) return '👑';
-    return '🛡️';
-  };
-
-  const getTeamColor = (name) => {
-    const n = (name || '').toLowerCase();
-    if (n.includes('mumbai')) return '#00ffff';
-    if (n.includes('chennai')) return '#fccf14';
-    if (n.includes('royal')) return '#e53e3e';
-    if (n.includes('delhi')) return '#0088ff';
-    if (n.includes('kolkata')) return '#805ad5';
-    return '#fccf14';
-  };
-
-  const teamColor = getTeamColor(team.name);
-  const teamImage = getTeamImage(team.id);
-
-  useEffect(() => {
-    if (cardRef.current) {
-      const rect = cardRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const dx = mousePos.x - (centerX - window.scrollX);
-      const dy = mousePos.y - (centerY - window.scrollY);
-      const dist = Math.sqrt(dx * dx + dy * dy);
-
-      if (dist < 250) {
-        const force = (250 - dist) / 250;
-        setTranslate({ x: (dx / dist) * -15 * force, y: (dy / dist) * -15 * force });
-      } else {
-        setTranslate({ x: 0, y: 0 });
-      }
-    }
-  }, [mousePos]);
+const TeamCard = ({ team, index, onViewSquad }) => {
+  const id = (team.id || '').toLowerCase();
+  const theme = teamThemes[id] || { gradient: 'radial-gradient(circle at 30% 20%, #4f46e5 0%, #0f0f1e 60%)', dot: '#818cf8', abbr: (team.name || 'T').substring(0,3).toUpperCase() };
+  const teamImg = getTeamImage(team.id);
+  const budgetLeft = (team.budget || 80) - (team.spent || 0);
 
   return (
-    <div 
-      className="team-card-glass-premium" 
-      ref={cardRef}
-      style={{
-        transform: `translate(${translate.x}px, ${translate.y}px)`,
-        borderColor: teamColor,
-        animationDelay: `${index * 0.1}s`
-      }}
+    <div
+      className="tcard"
+      style={{ '--tcard-gradient': theme.gradient, '--tcard-dot': theme.dot, animationDelay: `${index * 0.08}s` }}
     >
-      <div className="card-top-accent" style={{ background: teamColor }}></div>
-      <div className="card-glow-bg" style={{ background: `radial-gradient(circle at 50% 0%, ${teamColor}1a 0%, transparent 70%)` }}></div>
-      
-      <div className="card-header-premium">
-        {teamImage ? (
-          <img src={teamImage} alt={`${team.name} Logo`} className="team-image-large" />
+      {/* background gradient blob */}
+      <div className="tcard-bg" />
+
+      {/* dot accent */}
+      <div className="tcard-dot" />
+
+      {/* avatar */}
+      <div className="tcard-avatar">
+        {teamImg ? (
+          <img src={teamImg} alt={team.name} className="tcard-logo" />
         ) : (
-          <span className="team-icon-large pulse-gold">{getTeamIcon(team.name)}</span>
+          <span className="tcard-abbr">{theme.abbr}</span>
         )}
-        <h3 className="team-display-name">{(team.name || 'UNKNOWN').toUpperCase()}</h3>
-      </div>
-      
-      <div className="card-stats-premium">
-        <div className="stat-row">
-          <span className="label">BUDGET LEFT</span>
-          <span className="value highlight-yellow">₹{(team.budget || 80) - (team.spent || 0)} Cr</span>
-        </div>
-        <div className="stat-row">
-          <span className="label">TOTAL SPENT</span>
-          <span className="value">₹{team.spent || 0} Cr</span>
-        </div>
       </div>
 
-      <button 
-        className="view-squad-btn-premium" 
-        onClick={() => onViewSquad(team)}
-        style={{ borderColor: teamColor, '--hover-color': teamColor }}
-      >
+      {/* info */}
+      <div className="tcard-info">
+        <h3 className="tcard-name">{(team.name || 'UNKNOWN')}</h3>
+        <p className="tcard-role">{theme.abbr} • IPL FRANCHISE</p>
+      </div>
+
+      {/* tags */}
+      <div className="tcard-tags">
+        <span className="tcard-tag">₹{budgetLeft} Cr Left</span>
+        <span className="tcard-tag">₹{team.spent || 0} Cr Spent</span>
+        {team.playerCount > 0 && <span className="tcard-tag">{team.playerCount} Players</span>}
+      </div>
+
+      {/* CTA */}
+      <button className="tcard-btn" onClick={() => onViewSquad(team)}>
         VIEW SQUAD MATRIX
       </button>
     </div>

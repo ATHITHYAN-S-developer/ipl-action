@@ -1,0 +1,252 @@
+/* TeamsGrid.css — Premium Dark Gradient Cards */
+
+/* ── Section wrapper ─────────────────────────────────────── */
+.tgrid-section {
+  padding: 50px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: 'Inter', sans-serif;
+}
+
+.tgrid-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.tgrid-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #1a1a2e;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+
+.tgrid-subtitle {
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: #1565c0;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+/* Grid */
+.tgrid-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+/* Loading / Empty */
+.tgrid-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px;
+  color: #1565c0;
+  font-size: 0.78rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.tgrid-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(21, 101, 192, 0.15);
+  border-top: 3px solid #1565c0;
+  border-radius: 50%;
+  animation: tgSpin 0.9s linear infinite;
+}
+
+@keyframes tgSpin {
+  to { transform: rotate(360deg); }
+}
+
+.tgrid-empty {
+  text-align: center;
+  padding: 60px;
+  color: #9a9bbf;
+  font-size: 0.85rem;
+}
+
+/* ── The Card ─────────────────────────────────────────────── */
+.tcard {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  padding: 32px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: #161628;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              box-shadow 0.35s ease;
+  animation: tcardFadeUp 0.5s ease-out backwards;
+  min-height: 320px;
+}
+
+@keyframes tcardFadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tcard:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+}
+
+/* gradient background layer */
+.tcard-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--tcard-gradient);
+  opacity: 0.9;
+  z-index: 0;
+}
+
+/* floating dot accent (top left) */
+.tcard-dot {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--tcard-dot);
+  box-shadow: 0 0 14px var(--tcard-dot);
+  z-index: 2;
+  animation: dotPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.4); opacity: 0.6; }
+}
+
+/* avatar circle */
+.tcard-avatar {
+  position: relative;
+  z-index: 2;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  flex-shrink: 0;
+}
+
+.tcard-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+}
+
+.tcard-abbr {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--tcard-dot);
+  letter-spacing: 1px;
+}
+
+/* team info */
+.tcard-info {
+  position: relative;
+  z-index: 2;
+}
+
+.tcard-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  margin: 0 0 5px 0;
+  line-height: 1.2;
+}
+
+.tcard-role {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 0;
+}
+
+/* tags row */
+.tcard-tags {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.tcard-tag {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.75);
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+
+/* CTA button */
+.tcard-btn {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 13px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  color: #ffffff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(4px);
+}
+
+.tcard-btn:hover {
+  background: var(--tcard-dot);
+  border-color: transparent;
+  color: #000000;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  transform: scale(1.03);
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .tgrid-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .tgrid-title { font-size: 1.8rem; }
+}
+
+@media (max-width: 768px) {
+  .tgrid-section { padding: 30px 16px; }
+  .tgrid-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .tcard { padding: 22px 18px 20px; min-height: 270px; }
+  .tcard-name { font-size: 1.1rem; }
+  .tcard-avatar { width: 58px; height: 58px; }
+}
+
+@media (max-width: 480px) {
+  .tgrid-grid { grid-template-columns: 1fr; }
+}

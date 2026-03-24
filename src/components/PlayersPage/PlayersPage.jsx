@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import './PlayersPage.css';
 import { db } from '../../firebase';
 import { collection, onSnapshot, query, doc, collectionGroup } from 'firebase/firestore';
+import './PlayersPage.css';
 
 // Team Logos
 import cskLogo from '../../assets/teams images/csk.png';
@@ -14,16 +14,21 @@ import rcbLogo from '../../assets/teams images/rcb.webp';
 import rrLogo from '../../assets/teams images/rr.png';
 import srhLogo from '../../assets/teams images/srh.png';
 
+const teamThemes = {
+  csk:  { gradient: 'radial-gradient(circle at 30% 20%, #fbbf24 0%, #1c1838 60%)', dot: '#fbbf24', abbr: 'CSK' },
+  mi:   { gradient: 'radial-gradient(circle at 30% 20%, #3b82f6 0%, #0f172a 60%)', dot: '#60a5fa', abbr: 'MI'  },
+  rcb:  { gradient: 'radial-gradient(circle at 30% 20%, #ef4444 0%, #1a0a0a 60%)', dot: '#f87171', abbr: 'RCB' },
+  kkr:  { gradient: 'radial-gradient(circle at 30% 20%, #7c3aed 0%, #0f0a1e 60%)', dot: '#a78bfa', abbr: 'KKR' },
+  dc:   { gradient: 'radial-gradient(circle at 30% 20%, #2563eb 0%, #0c1b3a 60%)', dot: '#60a5fa', abbr: 'DC'  },
+  gt:   { gradient: 'radial-gradient(circle at 30% 20%, #06b6d4 0%, #042f2e 60%)', dot: '#22d3ee', abbr: 'GT'  },
+  rr:   { gradient: 'radial-gradient(circle at 30% 20%, #ec4899 0%, #1d0520 60%)', dot: '#f472b6', abbr: 'RR'  },
+  srh:  { gradient: 'radial-gradient(circle at 30% 20%, #f97316 0%, #1c0d00 60%)', dot: '#fb923c', abbr: 'SRH' },
+  pbks: { gradient: 'radial-gradient(circle at 30% 20%, #e11d48 0%, #200c14 60%)', dot: '#fb7185', abbr: 'PBKS'},
+};
+
 const teamLogos = {
-  csk: cskLogo,
-  dc: dcLogo,
-  gt: gtLogo,
-  kkr: kkrLogo,
-  mi: miLogo,
-  pbks: pbksLogo,
-  rcb: rcbLogo,
-  rr: rrLogo,
-  srh: srhLogo
+  csk: cskLogo, dc: dcLogo, gt: gtLogo, kkr: kkrLogo, mi: miLogo,
+  pbks: pbksLogo, rcb: rcbLogo, rr: rrLogo, srh: srhLogo
 };
 
 const PlayersPage = () => {
@@ -33,8 +38,7 @@ const PlayersPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collectionGroup(db, 'roster'));
-    const unsubscribePlayers = onSnapshot(q, (snapshot) => {
+    const unsubscribePlayers = onSnapshot(query(collectionGroup(db, 'roster')), (snapshot) => {
       const playerList = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .sort((a, b) => {
@@ -44,23 +48,16 @@ const PlayersPage = () => {
         });
       setPlayers(playerList);
       setLoading(false);
-    }, (error) => {
-      console.error("Firestore Error (Players):", error);
-      setLoading(false);
     });
 
-    const unsubscribeScores = onSnapshot(doc(db, 'settings', 'teamScores'), (snap) => {
+    const unsubscribeLive = onSnapshot(doc(db, 'settings', 'teamScores'), (snap) => {
       if (snap.exists()) {
         const statsMap = {};
         snap.data().teams?.forEach(t => {
           t.players?.forEach(p => {
-            const data = { runs: p.runs || 0, matches: p.matches || 0 };
-            // Map by ID
+            const data = { points: p.runs || p.points || 0, matches: p.matches || 0 };
             if (p.id) statsMap[p.id] = data;
-            // Map by Normalized Name as fallback
-            if (p.name) {
-              statsMap[p.name.trim().toLowerCase()] = data;
-            }
+            if (p.name) statsMap[p.name.trim().toLowerCase()] = data;
           });
         });
         setLiveStats(statsMap);
@@ -69,105 +66,92 @@ const PlayersPage = () => {
 
     return () => {
       unsubscribePlayers();
-      unsubscribeScores();
+      unsubscribeLive();
     };
   }, []);
 
   const filteredPlayers = players.filter(player => {
-    const playerName = player.name || '';
-    const playerTeam = player.team || '';
-    return playerName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-           playerTeam.toLowerCase().includes(searchTerm.toLowerCase());
+    const name = player.name || '';
+    const team = player.team || '';
+    return name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+           team.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  if (loading) return (
-    <div className="loading-players cyber-bg">
-      <div className="cyber-loader"></div>
-      <div className="loading-text">ACCESSING PLAYER DATABASE...</div>
-    </div>
-  );
-
-  if (players.length === 0) return (
-    <div className="players-container cyber-bg no-players">
-      <div className="players-header cyber-glow-card">
-        <h1 className="players-title">DATABASE EMPTY</h1>
-        <p className="players-subtitle highlight-yellow">No players found in the system roster.</p>
-      </div>
-      <div className="admin-notice cyber-card">
-        <p>Tip: Ensure you have "Bulk Loaded" the teams in the Admin Panel or created players manually.</p>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="players-container cyber-bg">
-      <div className="players-header cyber-glow-card">
-        <h1 className="players-title pulse">All Players</h1>
-        <p className="players-subtitle highlight-yellow">Search and filter players across all teams</p>
+    <div className="players-page">
+      <div className="players-page-header">
+        <h1 className="players-page-title">ALL PLAYERS</h1>
+        <p className="players-page-subtitle">SEARCH AND FILTER PLAYERS ACROSS ALL TEAMS</p>
       </div>
 
-      <div className="search-filter-section cyber-card no-after">
-        <div className="search-bar-container cyber-input-group wide-search">
+      <div className="players-search-container">
+        <div className="players-search-bar">
           <span className="search-icon">🔍</span>
           <input 
             type="text" 
             placeholder="SEARCH PLAYER OR TEAM..." 
-            className="search-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="showing-count cyber-tag-count">
-        DATABASE ENTRIES: <strong>{filteredPlayers.length}</strong>
+      <div className="players-count-tag">
+        DATABASE ENTRIES: <span>{filteredPlayers.length}</span>
       </div>
 
-      <div className="players-grid">
-        {filteredPlayers.map((player, index) => (
-          <div key={player.id} className={`player-card cyber-card animate-fade-up role-${(player.role || '').toLowerCase().replace('-', '')}`} style={{ animationDelay: `${index * 0.05}s` }}>
-            <div className="player-card-bg-number">#{index + 1}</div>
+      {loading ? (
+        <div className="players-loading">
+          <div className="players-spinner"></div>
+          <p>ACCESSING PLAYER DATABASE...</p>
+        </div>
+      ) : (
+        <div className="players-grid">
+          {filteredPlayers.map((player, index) => {
+            const tid = (player.team || '').toLowerCase();
+            const theme = teamThemes[tid] || { gradient: 'radial-gradient(circle at 30% 20%, #4f46e5 0%, #0f0f1e 60%)', dot: '#818cf8', abbr: (player.team||'T').substring(0,3).toUpperCase() };
+            const stats = liveStats[player.id] || liveStats[(player.name || '').trim().toLowerCase()] || { matches: player.matches || 0, points: player.points || player.runs || 0 };
             
-            <div className="player-card-header">
-              <div className="team-info-cyber">
-                {teamLogos[(player.team || '').toLowerCase()] ? (
-                  <img 
-                    src={teamLogos[(player.team || '').toLowerCase()]} 
-                    alt={player.team} 
-                    className="player-card-team-logo" 
-                  />
-                ) : (
-                  <span className="team-glitch-icon">🏏</span>
-                )}
-                <span className="team-name">{player.team}</span>
-              </div>
-              <div className={`cyber-role-tag`}>
-                {(player.role || 'PLAYER').toUpperCase()}
-              </div>
-            </div>
+            return (
+              <div
+                key={player.id}
+                className="pp-card"
+                style={{ '--pp-gradient': theme.gradient, '--pp-dot': theme.dot, animationDelay: `${index * 0.04}s` }}
+              >
+                <div className="pp-card-bg" />
+                <div className="pp-card-dot" />
+                <div className="pp-card-number">#{index + 1}</div>
 
-            <div className="player-card-main">
-              <h2 className="player-display-name">{player.name}</h2>
-              <div className="cyber-divider"></div>
-            </div>
+                <div className="pp-card-header">
+                  <div className="pp-team-info">
+                    {teamLogos[tid] && <img src={teamLogos[tid]} alt={player.team} className="pp-team-logo" />}
+                    <span className="pp-team-name">{player.team?.toUpperCase()}</span>
+                  </div>
+                  <div className="pp-role-badge">{(player.role || 'Player').toUpperCase()}</div>
+                </div>
 
-            <div className="player-stats-cyber">
-              <div className="cyber-stat-row">
-                <span className="stat-label">MATCHES</span>
-                <span className="stat-value">
-                  {liveStats[player.id]?.matches ?? liveStats[(player.name || '').trim().toLowerCase()]?.matches ?? player.matches ?? 0}
-                </span>
+                <div className="pp-card-main">
+                  <h2 className="pp-player-name">{player.name}</h2>
+                  <div className="pp-avatar">
+                    <span>{(player.name || '?').split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase()}</span>
+                  </div>
+                </div>
+
+                <div className="pp-card-stats">
+                  <div className="pp-stat-item">
+                    <span className="stat-label">MATCHES</span>
+                    <span className="stat-value">{stats.matches}</span>
+                  </div>
+                  <div className="pp-stat-item">
+                    <span className="stat-label">POINTS</span>
+                    <span className="stat-value" style={{ color: theme.dot }}>{stats.points}</span>
+                  </div>
+                </div>
               </div>
-              <div className="cyber-stat-row">
-                <span className="stat-label">LEAGUE POINTS</span>
-                <span className="stat-value">
-                  {liveStats[player.id]?.runs ?? liveStats[(player.name || '').trim().toLowerCase()]?.runs ?? 0}
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

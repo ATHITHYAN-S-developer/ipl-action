@@ -5,24 +5,26 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #050810;
+  color-scheme: light;
+  color: #1a1a2e; 
+  background-color: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Design Tokens */
-  --primary-yellow: #fccf14;
-  --secondary-cyan: #00f2ff;
-  --bg-dark: #050810;
-  --card-bg: rgba(13, 17, 28, 0.8);
-  --card-border: rgba(255, 255, 255, 0.1);
-  --glow-yellow: rgba(252, 207, 20, 0.3);
-  --glow-cyan: rgba(0, 242, 255, 0.3);
-  --text-dim: rgba(255, 255, 255, 0.6);
+  /* Design Tokens — White Theme */
+  --primary-yellow: #f0a500;
+  --accent-blue:    #1565c0;
+  --bg-white:       #ffffff;
+  --bg-light:       #f4f6fb;
+  --card-bg:        rgba(255, 255, 255, 0.9);
+  --card-border:    rgba(0, 0, 0, 0.08);
+  --glow-yellow:    rgba(240, 165, 0, 0.25);
+  --glow-blue:      rgba(21, 101, 192, 0.2);
+  --text-dark:      #1a1a2e;
+  --text-muted:     #666888;
 }
 
 * {
@@ -37,7 +39,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background: radial-gradient(circle at center, #0f172a 0%, #050810 100%);
+  background: #f0f2f8;
   overflow-x: hidden;
 }
 
@@ -49,6 +51,7 @@ h1, h2, h3, .font-accent {
   font-family: 'Orbitron', sans-serif;
   text-transform: uppercase;
   letter-spacing: 2px;
+  color: #1a1a2e;
 }
 
 button {
@@ -63,46 +66,12 @@ input {
 }
 
 .glass {
-  background: var(--card-bg);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--card-border);
-}
-
-.glow-text-yellow {
-  text-shadow: 0 0 10px var(--glow-yellow), 0 0 20px var(--glow-yellow);
-}
-
-.glow-text-cyan {
-  text-shadow: 0 0 10px var(--glow-cyan), 0 0 20px var(--glow-cyan);
-}
-
-.global-sponsor-logo {
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  width: 60px;
-  height: 60px;
-  z-index: 1000;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
-  transition: transform 0.3s;
-  object-fit: contain;
-}
-
-.global-sponsor-logo:hover {
-  transform: scale(1.1);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .bg-welcome-text {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  font-family: 'Orbitron', sans-serif;
-  color: var(--text-dim);
-  font-size: 0.8rem;
-  letter-spacing: 1px;
-  opacity: 0.4;
-  pointer-events: none;
-  z-index: 50;
-  text-transform: uppercase;
+  display: none;
 }
