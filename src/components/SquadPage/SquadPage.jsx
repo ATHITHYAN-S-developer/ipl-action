@@ -127,14 +127,6 @@ const SquadPage = ({ team, onBack }) => {
                         <span className="label">RUNS</span>
                         <span className="value" style={{ color: '#00ffff' }}>{member.runs || 0}</span>
                       </div>
-                      <div className="stat-item-premium">
-                        <span className="label">WICKETS</span>
-                        <span className="value" style={{ color: '#ff4d4d' }}>{member.wickets || 0}</span>
-                      </div>
-                      <div className="stat-item-premium">
-                        <span className="label">SR/AVG</span>
-                        <span className="value" style={{ color: '#fccf14' }}>{member.average || 0}</span>
-                      </div>
                     </div>
                   </div>
                 ))

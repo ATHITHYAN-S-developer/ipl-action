@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './PlayersPage.css';
 import { db } from '../../firebase';
-import { collection, onSnapshot, query, orderBy, doc } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, doc, collectionGroup } from 'firebase/firestore';
 
 // Team Logos
 import cskLogo from '../../assets/teams images/csk.png';
@@ -33,7 +33,7 @@ const PlayersPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, 'players'), orderBy('name'));
+    const q = query(collectionGroup(db, 'roster'), orderBy('name'));
     const unsubscribePlayers = onSnapshot(q, (snapshot) => {
       const playerList = snapshot.docs.map(doc => ({
         id: doc.id,

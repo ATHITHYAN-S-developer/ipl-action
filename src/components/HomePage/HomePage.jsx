@@ -11,13 +11,18 @@ import SquadPage from '../SquadPage/SquadPage';
 import Feedback from '../Feedback/Feedback';
 
 // Images for marquee
+
+
 import img1 from '../../assets/image in home page/WhatsApp Image 2026-03-24 at 4.24.23 PM (1).jpeg';
 import img2 from '../../assets/image in home page/WhatsApp Image 2026-03-24 at 4.24.23 PM (2).jpeg';
 import img3 from '../../assets/image in home page/WhatsApp Image 2026-03-24 at 4.24.23 PM.jpeg';
 import img4 from '../../assets/image in home page/WhatsApp Image 2026-03-24 at 4.24.24 PM.jpeg';
 import img5 from '../../assets/image in home page/WhatsApp Image 2026-03-24 at 4.25.32 PM.jpeg';
+import img6 from '../../assets/image in home page/WhatsApp Image 2026-03-24 at 9.02.37 PM.jpeg';
+import img7 from '../../assets/image in home page/WhatsApp Image 2026-03-24 at 9.02.35 PM.jpeg';
+import img8 from '../../assets/image in home page/WhatsApp Image 2026-03-24 at 9.02.35 PM (1).jpeg';
 
-const marqueeImages = [img1, img2, img3, img4, img5];
+const marqueeImages = [img1, img2, img3, img4, img5, img6, img7, img8];
 
 const HomePage = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('home');
@@ -28,16 +33,18 @@ const HomePage = ({ user, onLogout }) => {
   const [displayTime, setDisplayTime] = useState('00:00');
   const [loading, setLoading] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [imagePositions, setImagePositions] = useState([0, 1, 2, 3, 4]);
   const [heroTilt, setHeroTilt] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
   const heroRef = useRef(null);
+
+
 
   useEffect(() => {
     const unsubTeams = onSnapshot(collection(db, 'teams'), (snapshot) => {
       setTeams(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       setLoading(false);
     });
+    
 
     const unsubMatch = onSnapshot(doc(db, 'settings', 'matchInfo'), (snapshot) => {
       if (snapshot.exists()) {
@@ -139,19 +146,6 @@ const HomePage = ({ user, onLogout }) => {
     }
   };
 
-  const handleGalleryClick = (index) => {
-    const currentPos = imagePositions[index];
-    const shift = 2 - currentPos; // center is pos 2
-    if (shift === 0) return;
-
-    setImagePositions(prev => prev.map(pos => {
-      let newPos = pos + shift;
-      if (newPos < 0) newPos += 5;
-      if (newPos > 4) newPos -= 5;
-      return newPos;
-    }));
-  };
-
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
     setSelectedTeam(null);
@@ -227,21 +221,13 @@ const HomePage = ({ user, onLogout }) => {
               </div>
             </div>
 
-            {/* PREMIUM 3D STACKED GALLERY */}
-            <div className="premium-gallery-container fade-up" style={{ animationDelay: '0.7s' }}>
-              <div className="section-label-elite">LEADERSHIP SPOTLIGHT</div>
-              <div className="gallery-3d-stack">
-                {marqueeImages.map((img, i) => (
-                  <div 
-                    key={i} 
-                    className={`stack-card card-pos-${imagePositions[i]}`} 
-                    style={{ '--index': i, zIndex: imagePositions[i] === 2 ? 10 : (imagePositions[i] === 1 || imagePositions[i] === 3 ? 5 : 1) }}
-                    onClick={() => handleGalleryClick(i)}
-                  >
-                    <div className="card-glass-frame">
-                      <img src={img} alt={`Elite ${i}`} className="stack-img" />
-                      <div className="card-glare"></div>
-                    </div>
+            {/* IMAGE MARQUEE SECTION */}
+            <div className="home-marquee-section fade-up" style={{ animationDelay: '0.7s' }}>
+              <div className="section-label-elite" style={{ textAlign: 'center', marginBottom: '2rem' }}>LEADERSHIP SPOTLIGHT</div>
+              <div className="marquee-track">
+                {[...marqueeImages, ...marqueeImages].map((img, i) => (
+                  <div key={i} className="marquee-item">
+                    <img src={img} alt={`Gallery ${i}`} />
                   </div>
                 ))}
               </div>

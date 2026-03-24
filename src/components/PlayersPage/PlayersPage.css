@@ -120,10 +120,7 @@
   animation: scanline 4s linear infinite;
 }
 
-.player-card.role-batsman { border-left: 4px solid #fccf14; }
-.player-card.role-bowler { border-left: 4px solid #e53e3e; }
-.player-card.role-allrounder { border-left: 4px solid #00ffff; }
-.player-card.role-wicketkeeper { border-left: 4px solid #0088ff; }
+/* Role borders removed per user request */
 
 .player-card-bg-number {
   position: absolute;

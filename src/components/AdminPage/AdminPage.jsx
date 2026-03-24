@@ -17,7 +17,7 @@ const DEFAULT_TEAM_SCORES = [
 ];
 
 const AdminPage = ({ onLogout }) => {
-  const [activeTab, setActiveTab] = useState('players');
+  const [activeTab, setActiveTab] = useState('teams');
   const [players, setPlayers] = useState([]);
   const [teams, setTeams] = useState([]);
   const [scores, setScores] = useState({ teamA: '', teamB: '', scoreA: '', scoreB: '', overs: '' });
@@ -299,7 +299,6 @@ const AdminPage = ({ onLogout }) => {
       <div className="admin-sidebar">
         <h2 className="admin-logo">ELITE ADMIN</h2>
         <nav>
-          <button className={activeTab === 'players' ? 'active' : ''} onClick={() => setActiveTab('players')}>PLAYERS</button>
           <button className={activeTab === 'teams' ? 'active' : ''} onClick={() => setActiveTab('teams')}>TEAMS</button>
           <button className={activeTab === 'scoreboard' ? 'active' : ''} onClick={() => setActiveTab('scoreboard')}>SCOREBOARD</button>
           <button className={activeTab === 'comments' ? 'active' : ''} onClick={() => setActiveTab('comments')}>FEEDBACK</button>
@@ -314,48 +313,28 @@ const AdminPage = ({ onLogout }) => {
         </header>
 
         <section className="admin-content">
-          {activeTab === 'players' && (
-            <div className="admin-grid-two-col">
-              <div className="update-form-card glass-card">
-                <h3>CREATE PLAYER</h3>
-                <form onSubmit={handleCreatePlayer} className="admin-form-vertical">
-                  <input placeholder="Name" value={newPlayer.name} onChange={e => setNewPlayer({...newPlayer, name: e.target.value})} required />
-                  <select value={newPlayer.team} onChange={e => setNewPlayer({...newPlayer, team: e.target.value})} required>
-                    <option value="">Select Team</option>
-                    {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                  </select>
-                  <button type="submit" className="save-btn">ADD PLAYER</button>
-                </form>
-              </div>
-              <div className="update-form-card glass-card">
-                <h3>PLAYER LIST</h3>
-                <div className="admin-table-wrapper">
-                  <table className="admin-table">
-                    <thead><tr><th>NAME</th><th>TEAM</th><th>RUNS</th></tr></thead>
-                    <tbody>
-                      {sortedPlayers.map(p => (
-                        <tr key={p.id}>
-                          <td>{p.name}</td><td>{p.team}</td>
-                          <td><input type="number" value={p.runs} onChange={e => handleUpdatePlayer(p.id, 'runs', e.target.value)} /></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
           {activeTab === 'teams' && (
             <div className="admin-grid-two-col">
-              <div className="update-form-card glass-card">
-                <h3>REGISTER TEAM</h3>
-                <form onSubmit={handleCreateTeam} className="admin-form-vertical">
-                  <input placeholder="Team Name" value={newTeam.name} onChange={e => setNewTeam({...newTeam, name: e.target.value})} required />
-                  <input placeholder="ID (e.g. csk)" value={newTeam.id} onChange={e => setNewTeam({...newTeam, id: e.target.value})} required />
-                  <input type="number" placeholder="Budget (Cr)" value={newTeam.budget} onChange={e => setNewTeam({...newTeam, budget: Number(e.target.value)})} />
-                  <button type="submit" className="save-btn">CREATE TEAM</button>
-                </form>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                <div className="update-form-card glass-card">
+                  <h3>REGISTER TEAM</h3>
+                  <form onSubmit={handleCreateTeam} className="admin-form-vertical">
+                    <input placeholder="Team Name" value={newTeam.name} onChange={e => setNewTeam({...newTeam, name: e.target.value})} required />
+                    <input placeholder="ID (e.g. csk)" value={newTeam.id} onChange={e => setNewTeam({...newTeam, id: e.target.value})} required />
+                    <button type="submit" className="save-btn">CREATE TEAM</button>
+                  </form>
+                </div>
+                <div className="update-form-card glass-card">
+                  <h3>CREATE PLAYER</h3>
+                  <form onSubmit={handleCreatePlayer} className="admin-form-vertical">
+                    <input placeholder="Player Name" value={newPlayer.name} onChange={e => setNewPlayer({...newPlayer, name: e.target.value})} required />
+                    <select value={newPlayer.team} onChange={e => setNewPlayer({...newPlayer, team: e.target.value})} required>
+                      <option value="" disabled>Select Team Allocation</option>
+                      {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                    </select>
+                    <button type="submit" className="save-btn">ADD PLAYER</button>
+                  </form>
+                </div>
               </div>
                 <div className="admin-list-card">
                   <h3>EXISTING TEAMS</h3>
@@ -369,17 +348,34 @@ const AdminPage = ({ onLogout }) => {
                     {teams.map(t => {
                       const count = players.filter(p => p.team === t.id).length;
                       return (
-                        <div key={t.id} className="team-item-admin">
-                          <div className="item-info">
+                        <div key={t.id} className="team-item-admin" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                          <div className="item-info" style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span className="item-name">
                               {t.icon} {t.name}
                               <span style={{ fontSize: '0.7em', color: '#00ffff', background: 'rgba(0, 255, 255, 0.1)', padding: '2px 8px', borderRadius: '10px', marginLeft: '10px' }}>
                                 {count} Players
                               </span>
                             </span>
-                            <span className="item-meta">₹{t.spent} / {t.budget} Cr</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                              <button onClick={() => handleDeleteTeam(t.id)} className="btn-delete-small" title="Delete Team">🗑️</button>
+                            </div>
                           </div>
-                          <button onClick={() => handleDeleteTeam(t.id)} className="btn-delete-small">🗑️</button>
+                          
+                          {count > 0 && (
+                            <div style={{ width: '100%', marginTop: '15px', padding: '10px', background: 'rgba(0,0,0,0.3)', borderRadius: '8px' }}>
+                              <h4 style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '4px', letterSpacing: '1px' }}>
+                                TEAM ROSTER
+                              </h4>
+                              {players.filter(p => p.team === t.id).map(p => (
+                                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 4px', borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                                  <span style={{ fontSize: '0.8rem', color: '#ccc' }}>{p.name}</span>
+                                  <button onClick={() => handleDeletePlayer(p.id)} style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                                    ✖ Remove
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
