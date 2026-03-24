@@ -95,7 +95,10 @@ const AdminPage = ({ onLogout }) => {
       rr: ["Rtr.Janadharshini S", "SRI VISHNU SANTH B", "JOCHIHAL CHELIAN", "Praveen KU", "S.Masila Puvisha", "Avanthikaa G K", "Sangeetha Ganesan", "Shanmitha K", "S.RAMYA", "ZRR. Rtr. PP. Vaishnavi Kumari", "Jaysree"],
       dc: ["Rtr.PP.Tamilpriya Thangaraju", "Rtr. Vansh Saini", "HARIPRIYA C", "Sakthi Ganesh S", "KOWSALYADEVI D", "SUDHARSAN RAAJHAN V S", "Poonguzhali Loganathan", "Theshmika S", "GOKUL.S", "MADHULIKA R", "Karthikeyan"],
       gt: ["Rtr jeeva.s", "Rtr. Sureka P", "Rtr. Mahenoor Khan", "Sadhana", "Sree Mati M M", "N. GOBIKA", "Rtr Amritha P", "Rtr.preethi G", "Rtr.BANU K G", "Vanitha S", "Farhana"],
-      mi: ["Rtr.Janani K", "NALINI AMIRTHAVEL", "Vikhashini C", "NIKITHA V", "Abinaya M", "Sujai S P", "Jerom.r", "Rtr.Abdulrashed", "SRI DHARSHINI.V", "SUJITHA R", "Serena Sam"]
+      mi: ["Rtr.Janani K", "NALINI AMIRTHAVEL", "Vikhashini C", "NIKITHA V", "Abinaya M", "Sujai S P", "Jerom.r", "Rtr.Abdulrashed", "SRI DHARSHINI.V", "SUJITHA R", "Serena Sam"],
+      srh: ["Rtr. Srinithi V", "Rtr Thiruvazhagu K V", "Kamali R", "Balamurugan P", "Rtr.Santhosh", "Rtr Thilagan M", "Abdus Salam D", "VAISHNAVI D", "PIRITHIHA SHRI G", "Nathiya s", "Rtr Videsh D"],
+      pbks: ["Rudra ilakkian M.D", "HARIBINDHA.S", "Aswath Juhhail S", "Darshan PT", "Deepak R", "Rtr.PP.Ashwinbalajee MS", "Prasanna Kumar P", "Rtr kishore kumar k", "Reshma R", "Rtr Preethi L", "Kaviyazhini Mahalingam"],
+      csk: ["Rtr. Janaki PL", "Darsani M S", "DARUNA.M", "Sakthi Meenakshi S", "Rtr.B.Abhinandan", "N.INISHA", "ABHINITI M", "Thirumagal Mahendran", "Haneethra M M", "Aruneshwar KG", "Haritha"]
     };
 
     try {
@@ -110,7 +113,9 @@ const AdminPage = ({ onLogout }) => {
         });
 
         // Add Players
-        for (const name of plist) {
+        for (const rawName of plist) {
+          // Format Name: Add "Rtr." if it doesn't exist
+          const name = rawName.match(/Rtr/i) ? rawName : `Rtr. ${rawName}`;
           const playerId = `${id}-${name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
           await setDoc(doc(db, 'players', playerId), {
             name,
@@ -120,7 +125,7 @@ const AdminPage = ({ onLogout }) => {
           });
         }
       }
-      alert('All Teams (GT, MI, KKR, RCB, RR, DC) and their players added successfully!');
+      alert('All Teams (GT, MI, KKR, RCB, RR, DC, SRH, PBKS, CSK) and their players added successfully!');
     } catch (e) {
       console.error(e);
       alert('Error in bulk loading data');
@@ -210,7 +215,7 @@ const AdminPage = ({ onLogout }) => {
                 <div className="admin-list-card">
                   <h3>EXISTING TEAMS</h3>
                   <button onClick={bulkLoadAllTeams} className="btn-secondary" style={{ marginBottom: '15px', width: '100%', fontSize: '0.7rem' }}>
-                    ⚡ BULK LOAD ALL TEAMS (GT, MI, KKR, RCB, RR, DC)
+                    ⚡ BULK LOAD ALL TEAMS (GT, MI, KKR, RCB, RR, DC, SRH, PBKS, CSK)
                   </button>
                   <div className="admin-items-list">
                     {teams.map(t => (
