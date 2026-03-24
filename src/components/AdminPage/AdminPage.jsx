@@ -88,37 +88,41 @@ const AdminPage = ({ onLogout }) => {
     }
   };
 
-  const loadGTData = async () => {
-    const gtPlayers = [
-      "Rtr jeeva.s", "Rtr. Sureka P", "Rtr. Mahenoor Khan", "Sadhana", 
-      "Sree Mati M M", "N. GOBIKA", "Rtr Amritha P", "Rtr.preethi G", 
-      "Rtr.BANU K G", "Vanitha S", "Farhana"
-    ];
+  const bulkLoadAllTeams = async () => {
+    const data = {
+      kkr: ["AKSHAYA S", "Pranav Harsan A E", "Rtr.Kanishka.K", "Rtr Vidhyavarshini", "S.SARANRAJ", "SUBIKSHA.S", "PRADHAKSHNA.K", "P U Harshitha", "Rtr.KANISHKA T", "Prince B", "Akshaya"],
+      rcb: ["Jeevananth K", "LIBIKA SV", "Rtr. Nisha Sesadri T", "BRINDHA T", "S.Karthikeyan", "Rtr nishanth rao g", "Raveena Ragavi S", "Devi shree S", "Jagatheeswaran.S", "Sangavi.M.P", "Rajasuhas"],
+      rr: ["Rtr.Janadharshini S", "SRI VISHNU SANTH B", "JOCHIHAL CHELIAN", "Praveen KU", "S.Masila Puvisha", "Avanthikaa G K", "Sangeetha Ganesan", "Shanmitha K", "S.RAMYA", "ZRR. Rtr. PP. Vaishnavi Kumari", "Jaysree"],
+      dc: ["Rtr.PP.Tamilpriya Thangaraju", "Rtr. Vansh Saini", "HARIPRIYA C", "Sakthi Ganesh S", "KOWSALYADEVI D", "SUDHARSAN RAAJHAN V S", "Poonguzhali Loganathan", "Theshmika S", "GOKUL.S", "MADHULIKA R", "Karthikeyan"],
+      gt: ["Rtr jeeva.s", "Rtr. Sureka P", "Rtr. Mahenoor Khan", "Sadhana", "Sree Mati M M", "N. GOBIKA", "Rtr Amritha P", "Rtr.preethi G", "Rtr.BANU K G", "Vanitha S", "Farhana"],
+      mi: ["Rtr.Janani K", "NALINI AMIRTHAVEL", "Vikhashini C", "NIKITHA V", "Abinaya M", "Sujai S P", "Jerom.r", "Rtr.Abdulrashed", "SRI DHARSHINI.V", "SUJITHA R", "Serena Sam"]
+    };
 
     try {
-      // Create Team GT
-      const teamId = 'gt';
-      await setDoc(doc(db, 'teams', teamId), {
-        id: teamId,
-        name: 'GT',
-        budget: 80,
-        spent: 0,
-        icon: '🏏'
-      });
-
-      // Add Players
-      for (const name of gtPlayers) {
-        await addDoc(collection(db, 'players'), {
-          name,
-          team: teamId,
-          runs: 0,
-          wickets: 0
+      for (const [id, plist] of Object.entries(data)) {
+        // Create Team
+        await setDoc(doc(db, 'teams', id), {
+          id: id,
+          name: id.toUpperCase(),
+          budget: 80,
+          spent: 0,
+          icon: '🏏'
         });
+
+        // Add Players
+        for (const name of plist) {
+          await addDoc(collection(db, 'players'), {
+            name,
+            team: id,
+            runs: 0,
+            wickets: 0
+          });
+        }
       }
-      alert('Team GT and 11 players added successfully!');
+      alert('All Teams (GT, MI, KKR, RCB, RR, DC) and their players added successfully!');
     } catch (e) {
       console.error(e);
-      alert('Error adding GT data');
+      alert('Error in bulk loading data');
     }
   };
   const handleUpdateScore = async (e) => {
@@ -204,8 +208,8 @@ const AdminPage = ({ onLogout }) => {
               </div>
                 <div className="admin-list-card">
                   <h3>EXISTING TEAMS</h3>
-                  <button onClick={loadGTData} className="btn-secondary" style={{ marginBottom: '15px', width: '100%', fontSize: '0.7rem' }}>
-                    ⚡ QUICK LOAD TEAM GT
+                  <button onClick={bulkLoadAllTeams} className="btn-secondary" style={{ marginBottom: '15px', width: '100%', fontSize: '0.7rem' }}>
+                    ⚡ BULK LOAD ALL TEAMS (GT, MI, KKR, RCB, RR, DC)
                   </button>
                   <div className="admin-items-list">
                     {teams.map(t => (
