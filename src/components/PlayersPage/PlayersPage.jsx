@@ -5,13 +5,13 @@ import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 
 const PlayersPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilter, setActiveFilter] = useState('All');
   const [players, setPlayers] = useState([]);
+  const [liveScores, setLiveScores] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const q = query(collection(db, 'players'), orderBy('name'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribePlayers = onSnapshot(q, (snapshot) => {
       const playerList = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -20,18 +20,29 @@ const PlayersPage = () => {
       setLoading(false);
     });
 
-    return () => unsubscribe();
-  }, []);
+    const unsubscribeScores = onSnapshot(doc(db, 'settings', 'teamScores'), (snap) => {
+      if (snap.exists()) {
+        const scoresMap = {};
+        snap.data().teams?.forEach(t => {
+          t.players?.forEach(p => {
+            scoresMap[p.id] = p.runs;
+          });
+        });
+        setLiveScores(scoresMap);
+      }
+    });
 
-  const filters = ['All', 'Batsman', 'Bowler', 'All-rounder', 'Wicketkeeper'];
+    return () => {
+      unsubscribePlayers();
+      unsubscribeScores();
+    };
+  }, []);
 
   const filteredPlayers = players.filter(player => {
     const playerName = player.name || '';
     const playerTeam = player.team || '';
-    const matchesSearch = playerName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          playerTeam.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = activeFilter === 'All' || player.role === activeFilter;
-    return matchesSearch && matchesFilter;
+    return playerName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+           playerTeam.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   if (loading) return <div className="loading-players">LOADING DATABASE...</div>;
@@ -44,27 +55,15 @@ const PlayersPage = () => {
       </div>
 
       <div className="search-filter-section cyber-card no-after">
-        <div className="search-bar-container cyber-input-group">
+        <div className="search-bar-container cyber-input-group wide-search">
           <span className="search-icon">🔍</span>
           <input 
             type="text" 
-            placeholder="SEARCH DATABASE..." 
+            placeholder="SEARCH PLAYER OR TEAM..." 
             className="search-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-        </div>
-
-        <div className="filter-buttons">
-          {filters.map(filter => (
-            <button 
-              key={filter} 
-              className={`filter-btn cyber-btn ${activeFilter === filter ? 'active' : ''}`}
-              onClick={() => setActiveFilter(filter)}
-            >
-              {filter.toUpperCase()}
-            </button>
-          ))}
         </div>
       </div>
 
@@ -97,17 +96,9 @@ const PlayersPage = () => {
                 <span className="stat-label">MATCHES</span>
                 <span className="stat-value">{player.matches || 0}</span>
               </div>
-              <div className="cyber-stat-row highlight-cyan">
-                <span className="stat-label">RUNS</span>
-                <span className="stat-value">{player.runs || 0}</span>
-              </div>
-              <div className="cyber-stat-row highlight-red">
-                <span className="stat-label">WICKETS</span>
-                <span className="stat-value">{player.wickets || 0}</span>
-              </div>
-              <div className="cyber-stat-row highlight-yellow">
-                <span className="stat-label">AVERAGE</span>
-                <span className="stat-value">{player.average || 0}</span>
+              <div className="cyber-stat-row highlight-cyan full-width-stat">
+                <span className="stat-label">LEAGUE POINTS</span>
+                <span className="stat-value">{liveScores[player.id] || 0}</span>
               </div>
             </div>
           </div>

@@ -28,10 +28,10 @@
 
 .search-filter-section.cyber-card {
   width: 100%;
-  max-width: 900px;
+  max-width: 600px;
   background: rgba(10, 25, 50, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 2rem;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -43,9 +43,10 @@
   align-items: center;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(0, 255, 255, 0.2);
-  padding: 0.8rem 1.5rem;
-  gap: 1rem;
+  padding: 1rem 1.8rem;
+  gap: 1.2rem;
   transition: all 0.3s ease;
+  border-radius: 50px;
 }
 
 .search-bar-container.cyber-input-group:focus-within {
@@ -63,35 +64,8 @@
   outline: none;
 }
 
-.filter-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.cyber-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.6);
-  padding: 0.6rem 1.2rem;
-  font-size: 0.7rem;
-  font-weight: 900;
-  cursor: pointer;
-  clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
-  transition: all 0.3s ease;
-}
-
-.cyber-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-}
-
-.cyber-btn.active {
-  background: #fccf14;
-  color: #000;
-  border-color: #fccf14;
-  box-shadow: 0 0 15px rgba(252, 207, 20, 0.4);
+.wide-search {
+  max-width: 100% !important;
 }
 
 .cyber-tag-count {
@@ -217,9 +191,21 @@
 .stat-label { font-size: 0.6rem; color: rgba(255, 255, 255, 0.4); letter-spacing: 1px; }
 .stat-value { font-size: 1.2rem; font-weight: 900; }
 
-.highlight-cyan .stat-value { color: #00ffff; text-shadow: 0 0 10px rgba(0, 255, 255, 0.3); }
-.highlight-red .stat-value { color: #e53e3e; text-shadow: 0 0 10px rgba(229, 62, 62, 0.3); }
-.highlight-yellow .stat-value { color: #fccf14; text-shadow: 0 0 10px rgba(252, 207, 20, 0.3); }
+.highlight-cyan .stat-value { color: #fccf14; text-shadow: 0 0 10px rgba(252, 207, 20, 0.3); }
+
+.full-width-stat {
+  margin-top: 10px;
+  border-top: 1px solid rgba(0, 255, 255, 0.1);
+  padding-top: 15px !important;
+}
+
+.full-width-stat .stat-label {
+  color: #00ffff;
+}
+
+.full-width-stat .stat-value {
+  font-size: 1.8rem;
+}
 
 /* Animations */
 @keyframes scanline {
@@ -241,8 +227,7 @@
   .players-container.cyber-bg { padding: 2rem 1rem; }
   .players-header.cyber-glow-card { padding: 1.5rem; margin-bottom: 2rem; }
   .players-title { font-size: 1.8rem; }
-  .search-filter-section.cyber-card { padding: 1.5rem; gap: 1rem; margin-bottom: 2rem; }
-  .cyber-btn { padding: 0.5rem 0.8rem; font-size: 0.6rem; flex: 1; min-width: 100px; }
+  .search-filter-section.cyber-card { padding: 1rem; gap: 1rem; margin-bottom: 2rem; }
   .player-card.cyber-card { padding: 1.5rem; }
   .player-display-name { font-size: 1.3rem; }
   .stat-value { font-size: 1rem; }
