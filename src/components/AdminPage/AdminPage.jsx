@@ -66,13 +66,25 @@ const AdminPage = ({ onLogout }) => {
 
   const handleDeletePlayer = async (id) => {
     if (window.confirm('Delete this player?')) {
-      await deleteDoc(doc(db, 'players', id));
+      try {
+        await deleteDoc(doc(db, 'players', id));
+        alert('Player deleted successfully!');
+      } catch (e) {
+        console.error(e);
+        alert('Error deleting player: ' + e.message);
+      }
     }
   };
 
   const handleDeleteTeam = async (id) => {
-    if (window.confirm('Delete this team? This will NOT delete its players but will remove the team from the portal.')) {
-      await deleteDoc(doc(db, 'teams', id));
+    if (window.confirm('Delete this team?')) {
+      try {
+        await deleteDoc(doc(db, 'teams', id));
+        alert('Team deleted successfully!');
+      } catch (e) {
+        console.error(e);
+        alert('Error deleting team: ' + e.message);
+      }
     }
   };
 
