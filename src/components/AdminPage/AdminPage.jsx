@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
-import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, setDoc, collectionGroup } from 'firebase/firestore';
 import './AdminPage.css';
+
+// Default team scorecard structure
+const DEFAULT_TEAM_SCORES = [
+  { id: 'srh',  name: 'SRH',  totalScore: 140, players: [] },
+  { id: 'rr',   name: 'RR',   totalScore: 140, players: [] },
+  { id: 'rcb',  name: 'RCB',  totalScore: 140, players: [] },
+  { id: 'pbks', name: 'PBKS', totalScore: 140, players: [] },
+  { id: 'mi',   name: 'MI',   totalScore: 140, players: [] },
+  { id: 'kkr',  name: 'KKR',  totalScore: 140, players: [] },
+  { id: 'gt',   name: 'GT',   totalScore: 140, players: [] },
+  { id: 'dc',   name: 'DC',   totalScore: 140, players: [] },
+  { id: 'csk',  name: 'CSK',  totalScore: 140, players: [] },
+];
 
 const AdminPage = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState('players');
@@ -9,13 +22,18 @@ const AdminPage = ({ onLogout }) => {
   const [teams, setTeams] = useState([]);
   const [scores, setScores] = useState({ teamA: '', teamB: '', scoreA: '', scoreB: '', overs: '' });
   const [matchInfo, setMatchInfo] = useState({ nextMatchTime: '02:00', remainingDays: '45', footerStatus: 'PORTAL ACTIVE' });
+  const [scoreboardData, setScoreboardData] = useState(DEFAULT_TEAM_SCORES);
+  const [selectedSbTeam, setSelectedSbTeam] = useState('srh');
+  const [sbSaveMsg, setSbSaveMsg] = useState('');
+  const [feedback, setFeedback] = useState([]);
+  const [editingFeedback, setEditingFeedback] = useState(null);
 
   // Form States
   const [newPlayer, setNewPlayer] = useState({ name: '', role: 'Batsman', team: '', matches: 0, runs: 0, wickets: 0, average: 0 });
   const [newTeam, setNewTeam] = useState({ name: '', icon: '🏏', id: '', budget: 80, spent: 0 });
 
   useEffect(() => {
-    const unsubPlayers = onSnapshot(collection(db, 'players'), (snapshot) => {
+    const unsubPlayers = onSnapshot(collectionGroup(db, 'roster'), (snapshot) => {
       setPlayers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
@@ -31,21 +49,38 @@ const AdminPage = ({ onLogout }) => {
       if (snapshot.exists()) setMatchInfo(snapshot.data());
     });
 
+    const unsubSb = onSnapshot(doc(db, 'settings', 'teamScores'), (snapshot) => {
+      if (snapshot.exists() && snapshot.data().teams) {
+        setScoreboardData(snapshot.data().teams);
+      }
+    });
+
+    const unsubFeedback = onSnapshot(collection(db, 'feedback'), (snapshot) => {
+      setFeedback(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+
     return () => {
       unsubPlayers();
       unsubTeams();
       unsubScores();
       unsubMatch();
+      unsubSb();
+      unsubFeedback();
     };
   }, []);
 
   const handleCreatePlayer = async (e) => {
     e.preventDefault();
+    if (!newPlayer.team) return alert('Select a team');
     try {
-      await addDoc(collection(db, 'players'), newPlayer);
-      setNewPlayer({ name: '', role: 'Batsman', team: '', matches: 0, runs: 0, wickets: 0, average: 0 });
-      alert('Player Created!');
-    } catch (err) { console.error(err); }
+      const playerId = `${newPlayer.team}-${newPlayer.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+      await setDoc(doc(db, 'teams', newPlayer.team, 'roster', playerId), newPlayer);
+      setNewPlayer({ ...newPlayer, name: '', runs: 0, wickets: 0 });
+      alert('Player Added!');
+    } catch (err) {
+      console.error(err);
+      alert('Error adding player');
+    }
   };
 
   const handleCreateTeam = async (e) => {
@@ -60,18 +95,22 @@ const AdminPage = ({ onLogout }) => {
 
   const handleUpdatePlayer = async (id, field, value) => {
     try {
-      await updateDoc(doc(db, 'players', id), { [field]: value });
-    } catch (err) { console.error(err); }
+      const player = players.find(p => p.id === id);
+      if(player) await updateDoc(doc(db, 'teams', player.team, 'roster', id), { [field]: value });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleDeletePlayer = async (id) => {
-    if (window.confirm('Delete this player?')) {
+    if (window.confirm("Are you sure you want to delete this player?")) {
       try {
-        await deleteDoc(doc(db, 'players', id));
-        alert('Player deleted successfully!');
-      } catch (e) {
-        console.error(e);
-        alert('Error deleting player: ' + e.message);
+        const player = players.find(p => p.id === id);
+        if(player) await deleteDoc(doc(db, 'teams', player.team, 'roster', id));
+        alert('Player Deleted Successfully!');
+      } catch (err) {
+        console.error(err);
+        alert('Error deleting player');
       }
     }
   };
@@ -117,7 +156,7 @@ const AdminPage = ({ onLogout }) => {
           // Format Name: Add "Rtr." if it doesn't exist
           const name = rawName.match(/Rtr/i) ? rawName : `Rtr. ${rawName}`;
           const playerId = `${id}-${name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
-          await setDoc(doc(db, 'players', playerId), {
+          await setDoc(doc(db, 'teams', id, 'roster', playerId), {
             name,
             team: id,
             runs: 0,
@@ -137,6 +176,41 @@ const AdminPage = ({ onLogout }) => {
     catch (err) { console.error(err); }
   };
 
+  const handleClearScores = async () => {
+    if (window.confirm('Clear the live scoreboard? This will hide the banner on the home page.')) {
+      const emptyScores = { teamA: '', teamB: '', scoreA: '', scoreB: '', overs: '' };
+      try { 
+        await setDoc(doc(db, 'settings', 'liveScore'), emptyScores); 
+        setScores(emptyScores);
+        alert('Scoreboard Cleared!'); 
+      }
+      catch (err) { console.error(err); }
+    }
+  };
+
+  const handleRemoveDuplicates = async () => {
+    if (window.confirm("Are you sure you want to remove duplicate players?")) {
+      try {
+        const seen = new Set();
+        let deletedCount = 0;
+        
+        for (const player of players) {
+          const key = `${player.team}-${(player.name || '').trim().toLowerCase()}`;
+          if (seen.has(key)) {
+            await deleteDoc(doc(db, 'teams', player.team, 'roster', player.id));
+            deletedCount++;
+          } else {
+            seen.add(key);
+          }
+        }
+        alert(`Successfully removed ${deletedCount} duplicate players!`);
+      } catch (err) {
+        console.error(err);
+        alert('Error removing duplicates: ' + err.message);
+      }
+    }
+  };
+
   const handleUpdateMatchInfo = async (e) => {
     e.preventDefault();
     try { await setDoc(doc(db, 'settings', 'matchInfo'), matchInfo); alert('Match Info Updated!'); }
@@ -151,6 +225,75 @@ const AdminPage = ({ onLogout }) => {
     } catch (err) { console.error(err); }
   };
 
+  // ── Scoreboard helpers ────────────────────────────────────────────────────
+  const activeSbTeam = scoreboardData.find(t => t.id === selectedSbTeam) || scoreboardData[0];
+
+  const updateSbField = (field, value) => {
+    setScoreboardData(prev => prev.map(t =>
+      t.id === selectedSbTeam ? { ...t, [field]: value } : t
+    ));
+  };
+
+  const updateSbPlayer = (idx, field, value) => {
+    setScoreboardData(prev => prev.map(t => {
+      if (t.id !== selectedSbTeam) return t;
+      const newPlayers = [...t.players];
+      newPlayers[idx] = { ...newPlayers[idx], [field]: value };
+      const newTotal = newPlayers.reduce((sum, p) => sum + (Number(p.runs) || 0), 0);
+      return { ...t, players: newPlayers, totalScore: newTotal };
+    }));
+  };
+
+  const addSbPlayer = () => {
+    setScoreboardData(prev => prev.map(t =>
+      t.id === selectedSbTeam
+        ? { ...t, players: [...t.players, { name: '', runs: 0 }] }
+        : t
+    ));
+  };
+
+  const removeSbPlayer = (idx) => {
+    setScoreboardData(prev => prev.map(t => {
+      if (t.id !== selectedSbTeam) return t;
+      const newPlayers = t.players.filter((_, i) => i !== idx);
+      const newTotal = newPlayers.reduce((sum, p) => sum + (Number(p.runs) || 0), 0);
+      return { ...t, players: newPlayers, totalScore: newTotal };
+    }));
+  };
+
+  const handleDeleteFeedback = async (id) => {
+    if (window.confirm('Delete this feedback?')) {
+      try { await deleteDoc(doc(db, 'feedback', id)); }
+      catch (err) { console.error(err); }
+    }
+  };
+
+  const handleUpdateFeedback = async (id, newText) => {
+    try {
+      await updateDoc(doc(db, 'feedback', id), { comment: newText });
+      setEditingFeedback(null);
+    } catch (err) { console.error(err); }
+  };
+
+  const handleSaveScoreboard = async () => {
+    try {
+      await setDoc(doc(db, 'settings', 'teamScores'), { teams: scoreboardData });
+      setSbSaveMsg('✅ Saved!');
+      setTimeout(() => setSbSaveMsg(''), 2500);
+    } catch (err) {
+      console.error(err);
+      setSbSaveMsg('❌ Error saving');
+    }
+  };
+
+  const sortedPlayers = [...players].sort((a, b) => {
+    if ((a.team || '') < (b.team || '')) return -1;
+    if ((a.team || '') > (b.team || '')) return 1;
+    if ((a.name || '') < (b.name || '')) return -1;
+    if ((a.name || '') > (b.name || '')) return 1;
+    return 0;
+  });
+
   return (
     <div className="admin-container premium-glass-theme">
       <div className="admin-sidebar">
@@ -158,6 +301,8 @@ const AdminPage = ({ onLogout }) => {
         <nav>
           <button className={activeTab === 'players' ? 'active' : ''} onClick={() => setActiveTab('players')}>PLAYERS</button>
           <button className={activeTab === 'teams' ? 'active' : ''} onClick={() => setActiveTab('teams')}>TEAMS</button>
+          <button className={activeTab === 'scoreboard' ? 'active' : ''} onClick={() => setActiveTab('scoreboard')}>SCOREBOARD</button>
+          <button className={activeTab === 'comments' ? 'active' : ''} onClick={() => setActiveTab('comments')}>FEEDBACK</button>
           <button className={activeTab === 'settings' ? 'active' : ''} onClick={() => setActiveTab('settings')}>SETTINGS</button>
         </nav>
         <button className="logout-btn" onClick={onLogout}>logout</button>
@@ -188,7 +333,7 @@ const AdminPage = ({ onLogout }) => {
                   <table className="admin-table">
                     <thead><tr><th>NAME</th><th>TEAM</th><th>RUNS</th></tr></thead>
                     <tbody>
-                      {players.map(p => (
+                      {sortedPlayers.map(p => (
                         <tr key={p.id}>
                           <td>{p.name}</td><td>{p.team}</td>
                           <td><input type="number" value={p.runs} onChange={e => handleUpdatePlayer(p.id, 'runs', e.target.value)} /></td>
@@ -217,18 +362,172 @@ const AdminPage = ({ onLogout }) => {
                   <button onClick={bulkLoadAllTeams} className="btn-secondary" style={{ marginBottom: '15px', width: '100%', fontSize: '0.7rem' }}>
                     ⚡ BULK LOAD ALL TEAMS (GT, MI, KKR, RCB, RR, DC, SRH, PBKS, CSK)
                   </button>
+                  <button onClick={handleRemoveDuplicates} className="btn-secondary" style={{ marginBottom: '15px', width: '100%', fontSize: '0.7rem', background: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d', border: '1px solid #ff4d4d' }}>
+                    🚨 REMOVE DUPLICATE PLAYERS
+                  </button>
                   <div className="admin-items-list">
-                    {teams.map(t => (
-                      <div key={t.id} className="team-item-admin">
-                        <div className="item-info">
-                          <span className="item-name">{t.icon} {t.name}</span>
-                          <span className="item-meta">₹{t.spent} / {t.budget} Cr</span>
+                    {teams.map(t => {
+                      const count = players.filter(p => p.team === t.id).length;
+                      return (
+                        <div key={t.id} className="team-item-admin">
+                          <div className="item-info">
+                            <span className="item-name">
+                              {t.icon} {t.name}
+                              <span style={{ fontSize: '0.7em', color: '#00ffff', background: 'rgba(0, 255, 255, 0.1)', padding: '2px 8px', borderRadius: '10px', marginLeft: '10px' }}>
+                                {count} Players
+                              </span>
+                            </span>
+                            <span className="item-meta">₹{t.spent} / {t.budget} Cr</span>
+                          </div>
+                          <button onClick={() => handleDeleteTeam(t.id)} className="btn-delete-small">🗑️</button>
                         </div>
-                        <button onClick={() => handleDeleteTeam(t.id)} className="btn-delete-small">🗑️</button>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
+            </div>
+          )}
+
+          {activeTab === 'scoreboard' && activeSbTeam && (
+            <div className="admin-grid-two-col">
+              {/* Left: team selector + match/team fields */}
+              <div className="update-form-card glass-card">
+                <h3>EDIT TEAM SCORECARD</h3>
+
+                {/* Team selector tabs */}
+                <div className="sb-admin-team-tabs">
+                  {scoreboardData.map(t => (
+                    <button
+                      key={t.id}
+                      className={`sb-admin-tab ${selectedSbTeam === t.id ? 'active' : ''}`}
+                      onClick={() => setSelectedSbTeam(t.id)}
+                    >{t.name}</button>
+                  ))}
+                </div>
+
+                <div className="admin-form-vertical" style={{ marginTop: '1.5rem' }}>
+
+                  <div className="input-group">
+                    <label>Team Display Name</label>
+                    <input
+                      value={activeSbTeam.name}
+                      onChange={e => updateSbField('name', e.target.value)}
+                    />
+                  </div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:'10px' }}>
+                    <div className="input-group">
+                      <label>Total Score</label>
+                      <input type="number" value={activeSbTeam.totalScore}
+                        onChange={e => updateSbField('totalScore', Number(e.target.value))} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: roster selection */}
+              <div className="update-form-card glass-card">
+                <h3>ASSIGN SCORES — {activeSbTeam.name}</h3>
+                <p style={{ fontSize:'0.75rem', color:'rgba(255,255,255,0.4)', marginBottom:'15px' }}>
+                  Select players from the team roster and assign points. Total score (140) is common.
+                </p>
+                
+                <div className="sb-admin-players">
+                  {/* Show current squad members first */}
+                  {activeSbTeam.players.map((p, idx) => (
+                    <div key={idx} className="sb-admin-player-row">
+                      <span className="sb-pl-name-fixed">{p.name}</span>
+                      <input
+                        className="sb-pl-runs"
+                        type="number"
+                        min="0"
+                        placeholder="Points"
+                        value={p.runs}
+                        onChange={e => updateSbPlayer(idx, 'runs', Number(e.target.value))}
+                      />
+                      <button
+                        className="btn-delete-small"
+                        onClick={() => removeSbPlayer(idx)}
+                        title="Remove from scorecard"
+                      >✕</button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="sb-admin-roster-selector" style={{ marginTop:'20px', borderTop:'1px solid rgba(255,255,255,0.1)', paddingTop:'15px' }}>
+                  <label style={{ fontSize:'0.8rem', color:'#fccf14', display:'block', marginBottom:'10px' }}>Add from Roster:</label>
+                  <select 
+                    style={{ width:'100%', marginBottom:'10px' }}
+                    onChange={(e) => {
+                      if(e.target.value === "extras") {
+                        setScoreboardData(prev => prev.map(t => 
+                          t.id === selectedSbTeam 
+                            ? { ...t, players: [...t.players, { name: 'Extras', runs: 0 }] } 
+                            : t
+                        ));
+                      } else if(e.target.value) {
+                        const player = players.find(p => p.id === e.target.value);
+                        if(player) {
+                          setScoreboardData(prev => prev.map(t => 
+                            t.id === selectedSbTeam && !t.players.some(p => p.name === player.name)
+                              ? { ...t, players: [...t.players, { name: player.name, runs: 0 }] } 
+                              : t
+                          ));
+                        }
+                      }
+                      e.target.value = "";
+                    }}
+                  >
+                    <option value="">Choose Player...</option>
+                    <option value="extras">+ Add Extras Field</option>
+                    {players.filter(p => p.team === selectedSbTeam).map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div style={{ marginTop:'1.5rem', display:'flex', alignItems:'center', gap:'1rem' }}>
+                  <button className="save-btn" style={{ flex:1 }} onClick={handleSaveScoreboard}>
+                    💾 SAVE TO SCOREBOARD
+                  </button>
+                  {sbSaveMsg && <span style={{ color: sbSaveMsg.startsWith('✅') ? '#00ff88' : '#ff4d4d', fontSize:'0.85rem' }}>{sbSaveMsg}</span>}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'comments' && (
+            <div className="admin-list-card glass-card">
+              <h3>USER FEEDBACK & COMMENTS</h3>
+              <div className="admin-items-list">
+                {feedback.length === 0 ? (
+                  <p style={{ color:'rgba(255,255,255,0.4)', textAlign:'center', padding:'20px' }}>No feedback yet.</p>
+                ) : (
+                  feedback.map(f => (
+                    <div key={f.id} className="team-item-admin" style={{ flexDirection:'column', alignItems:'flex-start', gap:'10px' }}>
+                      <div style={{ display:'flex', justifyContent:'space-between', width:'100%' }}>
+                        <span className="item-name" style={{ color:'#fccf14' }}>{f.userName || 'Anonymous'}</span>
+                        <div style={{ display:'flex', gap:'10px' }}>
+                          <button className="btn-delete-small" onClick={() => setEditingFeedback(f)} title="Edit">✏️</button>
+                          <button className="btn-delete-small" style={{ background:'rgba(255,77,77,0.1)', color:'#ff4d4d' }} onClick={() => handleDeleteFeedback(f.id)}>✕</button>
+                        </div>
+                      </div>
+                      {editingFeedback?.id === f.id ? (
+                        <div style={{ width:'100%', display:'flex', gap:'10px' }}>
+                          <input 
+                            style={{ flex:1, background:'rgba(255,255,255,0.05)', border:'1px solid #fccf14', color:'white', padding:'8px', borderRadius:'8px' }}
+                            value={editingFeedback.comment}
+                            onChange={(e) => setEditingFeedback({...editingFeedback, comment: e.target.value})}
+                          />
+                          <button className="save-btn" style={{ padding:'8px 15px', fontSize:'0.7rem' }} onClick={() => handleUpdateFeedback(f.id, editingFeedback.comment)}>SAVE</button>
+                        </div>
+                      ) : (
+                        <p style={{ fontSize:'0.9rem', color:'white', opacity:0.8 }}>{f.comment}</p>
+                      )}
+                      <span style={{ fontSize:'0.7rem', color:'rgba(255,255,255,0.3)' }}>{f.timestamp?.toDate().toLocaleString() || 'Match Day'}</span>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           )}
 
@@ -257,7 +556,10 @@ const AdminPage = ({ onLogout }) => {
                   <input value={scores.teamB} onChange={e => setScores({...scores, teamB: e.target.value})} placeholder="Team B" />
                   <input value={scores.scoreB} onChange={e => setScores({...scores, scoreB: e.target.value})} placeholder="Score B" />
                   <input value={scores.overs} onChange={e => setScores({...scores, overs: e.target.value})} placeholder="Overs" />
-                  <button type="submit" className="save-btn">UPDATE SCORES</button>
+                  <div style={{ display: 'flex', gap: '15px' }}>
+                    <button type="submit" className="save-btn" style={{ flex: 2 }}>UPDATE SCORES</button>
+                    <button type="button" onClick={handleClearScores} className="save-btn" style={{ flex: 1, background: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d', border: '1px solid #ff4d4d' }}>CLEAR</button>
+                  </div>
                 </form>
               </div>
             </div>

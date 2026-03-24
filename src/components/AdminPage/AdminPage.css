@@ -353,3 +353,81 @@
   .glass-card { padding: 20px; }
   .footer-glass-premium { padding: 20px; flex-direction: column; gap: 20px; text-align: center; }
 }
+/* ─── Scoreboard Admin ─────────────────────────────────────────────────── */
+.sb-admin-team-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.sb-admin-tab {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.sb-admin-tab.active {
+  background: #fccf14;
+  color: #020b18;
+  border-color: #fccf14;
+}
+
+.sb-admin-tab:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.sb-admin-players {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.sb-admin-player-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sb-pl-name-fixed {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.sb-pl-runs {
+  width: 100px !important;
+  padding: 8px !important;
+  text-align: center;
+}
+
+.sb-admin-roster-selector select {
+  background: rgba(2, 11, 24, 0.8);
+  border: 1px solid #fccf14;
+  color: white;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+.sb-admin-roster-selector select:focus {
+  box-shadow: 0 0 10px rgba(252, 207, 20, 0.3);
+}

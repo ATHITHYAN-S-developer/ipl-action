@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './HomePage.css';
 
+import pbskLogo from '../../assets/teams images/PBSK.webp';
+import cskLogo from '../../assets/teams images/csk.png';
+import dcLogo from '../../assets/teams images/dc.png';
+import gtLogo from '../../assets/teams images/gt.jpg';
+import kkrLogo from '../../assets/teams images/kkr.png';
+import miLogo from '../../assets/teams images/mi.jpg';
+import rcbLogo from '../../assets/teams images/rcb.webp';
+import rrLogo from '../../assets/teams images/rr.png';
+import srhLogo from '../../assets/teams images/srh.png';
+
 const TeamsGrid = ({ teams, loading, error, onViewSquad }) => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
@@ -47,6 +57,22 @@ const TeamCardPremium = ({ team, index, mousePos, onViewSquad }) => {
   const cardRef = useRef(null);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
 
+  const getTeamImage = (id) => {
+    const normalizedId = (id || '').toLowerCase();
+    switch (normalizedId) {
+      case 'pbks': return pbskLogo;
+      case 'csk': return cskLogo;
+      case 'dc': return dcLogo;
+      case 'gt': return gtLogo;
+      case 'kkr': return kkrLogo;
+      case 'mi': return miLogo;
+      case 'rcb': return rcbLogo;
+      case 'rr': return rrLogo;
+      case 'srh': return srhLogo;
+      default: return null;
+    }
+  };
+
   const getTeamIcon = (name) => {
     if (team.icon) return team.icon;
     const n = (name || '').toLowerCase();
@@ -67,6 +93,7 @@ const TeamCardPremium = ({ team, index, mousePos, onViewSquad }) => {
   };
 
   const teamColor = getTeamColor(team.name);
+  const teamImage = getTeamImage(team.id);
 
   useEffect(() => {
     if (cardRef.current) {
@@ -100,7 +127,11 @@ const TeamCardPremium = ({ team, index, mousePos, onViewSquad }) => {
       <div className="card-glow-bg" style={{ background: `radial-gradient(circle at 50% 0%, ${teamColor}1a 0%, transparent 70%)` }}></div>
       
       <div className="card-header-premium">
-        <span className="team-icon-large pulse-gold">{getTeamIcon(team.name)}</span>
+        {teamImage ? (
+          <img src={teamImage} alt={`${team.name} Logo`} className="team-image-large" />
+        ) : (
+          <span className="team-icon-large pulse-gold">{getTeamIcon(team.name)}</span>
+        )}
         <h3 className="team-display-name">{(team.name || 'UNKNOWN').toUpperCase()}</h3>
       </div>
       

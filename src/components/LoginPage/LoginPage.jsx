@@ -148,17 +148,17 @@ const LoginPage = ({ onLogin }) => {
 
         <div className="lp-metrics-grid">
           <div className="lp-metric-item">
-            <div className="lp-metric-value">10</div>
+            <div className="lp-metric-value">9</div>
             <div className="lp-metric-label">TEAMS</div>
           </div>
           <div className="lp-v-divider" />
           <div className="lp-metric-item">
-            <div className="lp-metric-value">600+</div>
+            <div className="lp-metric-value">99</div>
             <div className="lp-metric-label">MEMBERS</div>
           </div>
           <div className="lp-v-divider" />
           <div className="lp-metric-item">
-            <div className="lp-metric-value">₹500C</div>
+            <div className="lp-metric-value">₹9C</div>
             <div className="lp-metric-label">REVENUE</div>
           </div>
         </div>

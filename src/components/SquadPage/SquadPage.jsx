@@ -3,6 +3,16 @@ import { db } from '../../firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import './SquadPage.css';
 
+import pbskLogo from '../../assets/teams images/PBSK.webp';
+import cskLogo from '../../assets/teams images/csk.png';
+import dcLogo from '../../assets/teams images/dc.png';
+import gtLogo from '../../assets/teams images/gt.jpg';
+import kkrLogo from '../../assets/teams images/kkr.png';
+import miLogo from '../../assets/teams images/mi.jpg';
+import rcbLogo from '../../assets/teams images/rcb.webp';
+import rrLogo from '../../assets/teams images/rr.png';
+import srhLogo from '../../assets/teams images/srh.png';
+
 const SquadPage = ({ team, onBack }) => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [squadMembers, setSquadMembers] = useState([]);
@@ -11,22 +21,33 @@ const SquadPage = ({ team, onBack }) => {
   const filters = ['All', 'Batsman', 'Bowler', 'All-rounder', 'Wicketkeeper'];
 
   useEffect(() => {
-    const q = query(
-      collection(db, 'players'),
-      where('team', '==', team.id)
-    );
-
-    const unsub = onSnapshot(q, (snapshot) => {
+    const unsub = onSnapshot(collection(db, 'teams', team.id, 'roster'), (snapshot) => {
       setSquadMembers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       setLoading(false);
     });
 
     return () => unsub();
-  }, [team.name]);
+  }, [team.id]);
 
   const filteredMembers = squadMembers.filter(member => 
     activeFilter === 'All' || member.role === activeFilter
   );
+
+  const getTeamImage = (id) => {
+    const normalizedId = (id || '').toLowerCase();
+    switch (normalizedId) {
+      case 'pbks': return pbskLogo;
+      case 'csk': return cskLogo;
+      case 'dc': return dcLogo;
+      case 'gt': return gtLogo;
+      case 'kkr': return kkrLogo;
+      case 'mi': return miLogo;
+      case 'rcb': return rcbLogo;
+      case 'rr': return rrLogo;
+      case 'srh': return srhLogo;
+      default: return null;
+    }
+  };
 
   const getTeamIcon = (name) => {
     if (team.icon) return team.icon;
@@ -67,7 +88,11 @@ const SquadPage = ({ team, onBack }) => {
               background: `radial-gradient(circle at 70% 50%, ${teamColor}1a 0%, transparent 70%)` 
             }}></div>
             <div className="banner-content-premium">
-              <span className="banner-emoji-premium pulse-gold">{getTeamIcon(team.name)}</span>
+              {getTeamImage(team.id) ? (
+                <img src={getTeamImage(team.id)} alt={`${team.name} Logo`} className="team-image-banner" />
+              ) : (
+                <span className="banner-emoji-premium pulse-gold">{getTeamIcon(team.name)}</span>
+              )}
               <div className="banner-text-premium">
                 <h1 className="banner-team-name-premium">{(team.name || '').toUpperCase()}</h1>
                 <div className="banner-info-premium">
@@ -85,19 +110,6 @@ const SquadPage = ({ team, onBack }) => {
           </div>
 
           <div className="squad-section-premium">
-            <div className="squad-filters-cyber" style={{ marginBottom: '40px' }}>
-              {filters.map(filter => (
-                <button 
-                  key={filter} 
-                  className={`squad-filter-btn cyber-btn ${activeFilter === filter ? 'active' : ''}`}
-                  onClick={() => setActiveFilter(filter)}
-                  style={{ borderRadius: '12px', fontSize: '0.7rem' }}
-                >
-                  {filter.toUpperCase()}
-                </button>
-              ))}
-            </div>
-
             <div className="squad-grid-premium">
               {filteredMembers.length > 0 ? (
                 filteredMembers.map((member, index) => (

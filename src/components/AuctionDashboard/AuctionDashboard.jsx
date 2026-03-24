@@ -76,62 +76,11 @@ const AuctionDashboard = ({ user }) => {
         </div>
       </div>
 
-      <div className="auction-main-grid">
-        <div className="auction-card-main glass-card highlight-glow">
-          <div className="auction-card-header">
-            <div className="player-meta">
-              <span className="player-category-tag">{status.currentPlayer?.role?.toUpperCase() || 'PLAYER'}</span>
-              <h2 className="player-active-name">{status.currentPlayer?.name || 'Waiting...'}</h2>
-            </div>
-            <div className="bid-stats-mini">
-              <span className="base-price-tag">BASE: {status.currentPlayer?.basePrice || '₹ 0.20 Cr'}</span>
-            </div>
-          </div>
-
-          <div className="bidding-display-sector">
-            <div className="current-bid-container">
-              <label>CURRENT HIGHEST BID</label>
-              <div className="bid-amount-large">
-                <span className="currency">₹</span>
-                <span className="amount-val">{Number(status.currentBid || 0).toFixed(2)}</span>
-                <span className="unit">CR</span>
-              </div>
-            </div>
-            
-            <div className="leading-team-container">
-              <label>LEADING CONTENDER</label>
-              <div className="team-banner-glow">
-                {(status.leadingTeam || 'NONE').toUpperCase()}
-              </div>
-            </div>
-          </div>
-
-          <div className="bidding-actions-sector">
-            <div className="bid-controls-grid">
-              <button className="bid-btn btn-50l" onClick={() => handleBid(0.5)}>+ ₹50 L</button>
-              <button className="bid-btn btn-1cr" onClick={() => handleBid(1.0)}>+ ₹1 CR</button>
-              <button className="bid-btn btn-2cr" onClick={() => handleBid(2.0)}>+ ₹2 CR</button>
-              <button className="bid-btn btn-5cr" onClick={() => handleBid(5.0)}>+ ₹5 CR</button>
-            </div>
-            <button className="place-custom-bid-btn">PLACE STRATEGIC BID</button>
-          </div>
-        </div>
-
-        <div className="auction-sidebar-lists">
-          <div className="sidebar-card glass-card">
-            <h3>UPCOMING TALENT</h3>
-            <div className="mini-player-list">
-              {upcomingPlayers.map(p => (
-                <div key={p.id} className="mini-player-item">
-                  <div className="p-info">
-                    <span className="p-name">{p.name}</span>
-                    <span className="p-role">{p.role}</span>
-                  </div>
-                  <span className="p-price">{p.basePrice || '₹ 0.20 Cr'}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+      <div className="auction-main-grid" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+        <div className="auction-card-main glass-card highlight-glow" style={{ textAlign: 'center', padding: '80px 40px', width: '100%', maxWidth: '800px' }}>
+          <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', color: '#fccf14', letterSpacing: '2px', textTransform: 'uppercase', lineHeight: '1.6' }}>
+            Action completed<br/>on 23 . 03 . 2026<br/>completed
+          </h2>
         </div>
       </div>
       
@@ -142,6 +91,7 @@ const AuctionDashboard = ({ user }) => {
           <span>ELITE CRICKET AUCTION PORTAL</span>
           <span className="ticker-sep">•</span>
           <span>CHAMP LEAGUE SEASON 2026</span>
+           <span>Champ Inter District E - Ryla</span>
         </div>
       </div>
     </div>

@@ -3,12 +3,12 @@ import './HomePage.css';
 import Navigation from '../Navigation/Navigation';
 import { db } from '../../firebase';
 import { collection, onSnapshot, doc } from 'firebase/firestore';
-import PointsTable from './PointsTable';
 import TeamsGrid from './TeamsGrid';
 import AuctionDashboard from '../AuctionDashboard/AuctionDashboard';
 import PlayersPage from '../PlayersPage/PlayersPage';
 import Scoreboard from '../Scoreboard/Scoreboard';
 import SquadPage from '../SquadPage/SquadPage';
+import Feedback from '../Feedback/Feedback';
 
 const HomePage = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('home');
@@ -186,8 +186,8 @@ const HomePage = ({ user, onLogout }) => {
 
         {activeTab === 'scoreboard' && <Scoreboard />}
         {activeTab === 'players' && <PlayersPage />}
-        {activeTab === 'points' && <PointsTable />}
         {activeTab === 'auction' && <AuctionDashboard user={user} />}
+        {activeTab === 'feedback' && <Feedback />}
       </main>
 
       <footer className="footer-glass-premium">

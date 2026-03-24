@@ -55,6 +55,13 @@
   font-size: 5rem;
 }
 
+.team-image-banner {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
+}
+
 .banner-team-name-premium {
   font-family: 'Orbitron', sans-serif;
   font-size: 3.5rem;

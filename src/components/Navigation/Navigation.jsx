@@ -8,8 +8,8 @@ const Navigation = ({ activeTab, onTabChange }) => {
     { id: 'teams', label: 'Teams', icon: '👥' },
     { id: 'players', label: 'Players', icon: '🏏' },
     { id: 'scoreboard', label: 'Scoreboard', icon: '📊' },
-    { id: 'points', label: 'Points Table', icon: '📈' },
-    { id: 'auction', label: 'Auction Dashboard', icon: '🔨' }
+    { id: 'auction', label: 'Auction Dashboard', icon: '🔨' },
+    { id: 'feedback', label: 'Feedback', icon: '💬' }
   ];
 
   return (
