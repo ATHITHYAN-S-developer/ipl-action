@@ -235,12 +235,12 @@ const HomePage = ({ user, onLogout }) => {
 
             <div className="home-features-grid">
               <div className="fade-up" style={{ animationDelay: '0.8s' }}>
-                <InteractiveCard title="Rotaract District 3203 " desk="Rotaract District 3203 is a vibrant community of passionate young rotaractors dedicated to service, creativity, and impact. Guided by Rotary International, the district thrives under the theme Rotaract Mania, promoting unity, innovation, and leadership.
-
-With the powerful call “Lead for Change” Rotaractors are inspired to step up, take initiative, and create meaningful transformation in their communities. Here, leadership is not just a role — it’s a responsibility to drive change and build a better future." mousePos={mousePos} />
+                <InteractiveCard title="Rotaract District 3203 " desk="Rotaract District 3203 is a vibrant community of passionate young rotaractors dedicated to service, creativity, and impact. 
+With the powerful call “Lead for Change,” Rotaractors are inspired to step up, take initiative, and create meaningful transformation in their communities." mousePos={mousePos} />
               </div>
               <div className="fade-up" style={{ animationDelay: '1.0s' }}>
-                <InteractiveCard title="CHAMP " desk="CHAMP – Leadership Premier League is a 7-day online leadership program inspired by the energy and format of an IPL-style cricket league. Participants become players, form teams, and engage in daily leadership challenges that build skills like communication, teamwork, decision making, and innovation. With a mix of competition, collaboration, and real-time tasks, CHAMP transforms learning into an exciting league where individuals grow, teams perform, and leaders emerge as champions. 🏏" mousePos={mousePos} />
+                <InteractiveCard title="CHAMP " desk="Leadership Premier League is a 7-day online leadership program inspired by the energy and format of an IPL-style cricket league. Participants become players, form teams, and engage in daily leadership challenges that build skills like communication, teamwork, decision making, and innovation. 
+With a mix of competition, collaboration, and real-time tasks, CHAMP transforms learning into an exciting league where individuals grow, teams perform, and leaders emerge as champions" mousePos={mousePos} />
               </div>
             </div>
           </div>
