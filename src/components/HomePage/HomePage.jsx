@@ -178,7 +178,7 @@ const HomePage = ({ user, onLogout }) => {
                 <div className="hero-content-glass">
                   <div className="hero-badge glitch-text" data-text="OFFICIAL LEAGUE PORTAL">OFFICIAL LEAGUE PORTAL</div>
                   <h1 className="hero-title-premium scale-in">
-                    CHAMP INTER DISTRICT<br />
+                    CHAMP INTER DISTRICTE - Ryla <br />
                     <span className="accent-gold pulse-gold">LEADERSHIP PREMIUM LEAGUE</span>
                   </h1>
                   <p className="hero-subtitle-premium">PREMIUM CRICKET EXPERIENCE • ELITE COMPETITION</p>
