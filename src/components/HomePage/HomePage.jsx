@@ -178,7 +178,7 @@ const HomePage = ({ user, onLogout }) => {
                 <div className="hero-content-glass">
                   <div className="hero-badge glitch-text" data-text="OFFICIAL LEAGUE PORTAL">OFFICIAL LEAGUE PORTAL</div>
                   <h1 className="hero-title-premium scale-in">
-                    CHAMP INTER DISTRICTE - Ryla <br />
+                    CHAMP INTER DISTRICT E - Ryla <br />
                     <span className="accent-gold pulse-gold">LEADERSHIP PREMIUM LEAGUE</span>
                   </h1>
                   <p className="hero-subtitle-premium">PREMIUM CRICKET EXPERIENCE • ELITE COMPETITION</p>
@@ -239,7 +239,7 @@ const HomePage = ({ user, onLogout }) => {
 With the powerful call “Lead for Change,” Rotaractors are inspired to step up, take initiative, and create meaningful transformation in their communities." mousePos={mousePos} />
               </div>
               <div className="fade-up" style={{ animationDelay: '1.0s' }}>
-                <InteractiveCard title="CHAMP " desk="Leadership Premier League is a 7-day online leadership program inspired by the energy and format of an IPL-style cricket league. Participants become players, form teams, and engage in daily leadership challenges that build skills like communication, teamwork, decision making, and innovation. 
+                <InteractiveCard title="CHAMP E - Ryla" desk="CHAMP ERYLA – Leadership Premier League is a 7-day online leadership program inspired by the energy and format of an IPL-style cricket league. Participants become players, form teams, and engage in daily leadership challenges that build skills like communication, teamwork, decision making, and innovation. 
 With a mix of competition, collaboration, and real-time tasks, CHAMP transforms learning into an exciting league where individuals grow, teams perform, and leaders emerge as champions" mousePos={mousePos} />
               </div>
             </div>
