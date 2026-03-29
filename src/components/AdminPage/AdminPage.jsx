@@ -5,15 +5,15 @@ import './AdminPage.css';
 
 // Default team scorecard structure
 const DEFAULT_TEAM_SCORES = [
-  { id: 'srh',  name: 'SRH',  totalScore: 140, players: [] },
-  { id: 'rr',   name: 'RR',   totalScore: 140, players: [] },
-  { id: 'rcb',  name: 'RCB',  totalScore: 140, players: [] },
-  { id: 'pbks', name: 'PBKS', totalScore: 140, players: [] },
-  { id: 'mi',   name: 'MI',   totalScore: 140, players: [] },
-  { id: 'kkr',  name: 'KKR',  totalScore: 140, players: [] },
-  { id: 'gt',   name: 'GT',   totalScore: 140, players: [] },
-  { id: 'dc',   name: 'DC',   totalScore: 140, players: [] },
-  { id: 'csk',  name: 'CSK',  totalScore: 140, players: [] },
+  { id: 'srh',  name: 'SRH',  totalScore: 0, players: [] },
+  { id: 'rr',   name: 'RR',   totalScore: 0, players: [] },
+  { id: 'rcb',  name: 'RCB',  totalScore: 0, players: [] },
+  { id: 'pbks', name: 'PBKS', totalScore: 0, players: [] },
+  { id: 'mi',   name: 'MI',   totalScore: 0, players: [] },
+  { id: 'kkr',  name: 'KKR',  totalScore: 0, players: [] },
+  { id: 'gt',   name: 'GT',   totalScore: 0, players: [] },
+  { id: 'dc',   name: 'DC',   totalScore: 0, players: [] },
+  { id: 'csk',  name: 'CSK',  totalScore: 0, players: [] },
 ];
 
 const AdminPage = ({ onLogout }) => {
@@ -428,7 +428,7 @@ const AdminPage = ({ onLogout }) => {
               <div className="update-form-card glass-card">
                 <h3>ASSIGN SCORES — {activeSbTeam.name}</h3>
                 <p style={{ fontSize:'0.75rem', color:'rgba(255,255,255,0.4)', marginBottom:'15px' }}>
-                  Select players from the team roster and assign points. Total score (140) is common.
+                  Select players from the team roster and assign points. Total score will be calculated automatically.
                 </p>
                 
                 <div className="sb-admin-players">

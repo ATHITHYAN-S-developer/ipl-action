@@ -144,8 +144,6 @@ const Scoreboard = () => {
                     <span className="sb-score-runs" style={{ color: team.color, textShadow: `0 0 20px ${team.color}` }}>
                       {team.totalScore}
                     </span>
-                    <span className="sb-score-divider">/</span>
-                    <span className="sb-score-total">140</span>
                   </div>
                   <span className="sb-score-wkts" style={{ fontSize:'0.7rem', color:'rgba(255,255,255,0.4)', marginTop:'2px' }}>TEAM POINTS</span>
                 </div>
@@ -184,7 +182,7 @@ const Scoreboard = () => {
                       <tr className="total-row">
                         <td>TEAM TOTAL</td>
                         <td style={{ color: team.color }}>
-                          {team.totalScore} / 140
+                          {team.totalScore}
                         </td>
                       </tr>
                     </tfoot>
