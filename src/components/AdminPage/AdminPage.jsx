@@ -512,7 +512,7 @@ const AdminPage = ({ onLogout }) => {
               <h3>USER FEEDBACK & COMMENTS</h3>
               <div className="admin-items-list">
                 {feedback.length === 0 ? (
-                  <p style={{ color:'rgba(255,255,255,0.4)', textAlign:'center', padding:'20px' }}>No feedback yet.</p>
+                  <p style={{ color:'rgba(0,0,0,0.4)', textAlign:'center', padding:'20px' }}>No feedback yet.</p>
                 ) : (
                   feedback.map(f => (
                     <div key={f.id} className="team-item-admin" style={{ flexDirection:'column', alignItems:'flex-start', gap:'10px' }}>
@@ -533,9 +533,9 @@ const AdminPage = ({ onLogout }) => {
                           <button className="save-btn" style={{ padding:'8px 15px', fontSize:'0.7rem' }} onClick={() => handleUpdateFeedback(f.id, editingFeedback.comment)}>SAVE</button>
                         </div>
                       ) : (
-                        <p style={{ fontSize:'0.9rem', color:'white', opacity:0.8 }}>{f.comment}</p>
+                        <p style={{ fontSize:'0.9rem', color:'#1a1a2e', fontWeight: '500' }}>{f.comment}</p>
                       )}
-                      <span style={{ fontSize:'0.7rem', color:'rgba(255,255,255,0.3)' }}>{f.timestamp?.toDate().toLocaleString() || 'Match Day'}</span>
+                      <span style={{ fontSize:'0.7rem', color:'rgba(0,0,0,0.4)' }}>{f.timestamp?.toDate().toLocaleString() || 'Match Day'}</span>
                     </div>
                   ))
                 )}
