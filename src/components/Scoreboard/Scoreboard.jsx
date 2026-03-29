@@ -46,6 +46,7 @@ const Scoreboard = () => {
   const [liveTeams,    setLiveTeams]      = useState(null);   // from Firestore
   const [loading,      setLoading]        = useState(true);
   const [searchQuery,  setSearchQuery]    = useState('');
+  const [maxScore,     setMaxScore]       = useState(1750);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'settings', 'teamScores'), (snap) => {
@@ -54,7 +55,14 @@ const Scoreboard = () => {
       }
       setLoading(false);
     });
-    return () => unsub();
+
+    const unsubMatch = onSnapshot(doc(db, 'settings', 'matchInfo'), (snap) => {
+      if (snap.exists() && snap.data().maxScore) {
+        setMaxScore(snap.data().maxScore);
+      }
+    });
+
+    return () => { unsub(); unsubMatch(); };
   }, []);
 
   // Merge Firestore data with static logo/color config
@@ -144,6 +152,8 @@ const Scoreboard = () => {
                     <span className="sb-score-runs" style={{ color: team.color, textShadow: `0 0 20px ${team.color}` }}>
                       {team.totalScore}
                     </span>
+                    <span className="sb-score-divider">/</span>
+                    <span className="sb-score-total">{maxScore}</span>
                   </div>
                   <span className="sb-score-wkts" style={{ fontSize:'0.7rem', color:'rgba(255,255,255,0.4)', marginTop:'2px' }}>TEAM POINTS</span>
                 </div>
@@ -151,7 +161,7 @@ const Scoreboard = () => {
                 <div className="sb-score-bar-wrap">
                   <div
                     className="sb-score-bar-fill"
-                    style={{ width: `${Math.min((team.totalScore / 200) * 100, 100)}%`, background: team.color, boxShadow: `0 0 8px ${team.color}` }}
+                    style={{ width: `${Math.min((team.totalScore / maxScore) * 100, 100)}%`, background: team.color, boxShadow: `0 0 8px ${team.color}` }}
                   />
                 </div>
 

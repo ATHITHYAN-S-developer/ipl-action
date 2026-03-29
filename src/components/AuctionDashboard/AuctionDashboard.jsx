@@ -6,6 +6,7 @@ import './AuctionDashboard.css';
 const AuctionDashboard = ({ user }) => {
   const [auctionStatus, setAuctionStatus] = useState(null);
   const [upcomingPlayers, setUpcomingPlayers] = useState([]);
+  const [completedMatches, setCompletedMatches] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,8 +21,12 @@ const AuctionDashboard = ({ user }) => {
       setUpcomingPlayers(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     };
 
+    const unsubMatches = onSnapshot(collection(db, 'completedMatches'), (snapshot) => {
+      setCompletedMatches(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)));
+    });
+
     fetchUpcoming();
-    return () => unsubStatus();
+    return () => { unsubStatus(); unsubMatches(); };
   }, []);
 
   const handleBid = async (incAmount) => {
@@ -76,12 +81,36 @@ const AuctionDashboard = ({ user }) => {
         </div>
       </div>
 
-      <div className="auction-main-grid" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+      <div className="auction-main-grid" style={{ display: 'flex', justifyContent: 'center', width: '100%', flexDirection: 'column', alignItems: 'center', gap: '40px' }}>
         <div className="auction-card-main glass-card highlight-glow" style={{ textAlign: 'center', padding: '80px 40px', width: '100%', maxWidth: '800px' }}>
           <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', color: '#fccf14', letterSpacing: '2px', textTransform: 'uppercase', lineHeight: '1.6' }}>
             Action completed<br/>on 23 . 03 . 2026<br/>completed
           </h2>
         </div>
+
+        {/* --- COMPLETED MATCHES SECTION --- */}
+        {completedMatches.length > 0 && (
+          <div className="completed-matches-feed" style={{ width: '100%', maxWidth: '900px', display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '40px' }}>
+            <h3 style={{ fontFamily: 'Orbitron', color: '#00ffff', letterSpacing: '3px', textAlign: 'center', marginBottom: '10px' }}>
+              COMPLETED STAGES
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+              {completedMatches.map(m => (
+                <div key={m.id} className="match-result-card glass-card pulse" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: 'rgba(0, 0, 0, 0.3)', border: '1px solid rgba(252, 207, 20, 0.3)', backdropFilter: 'blur(10px)', boxShadow: '0 0 15px rgba(252, 207, 20, 0.1)', gap: '10px' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#9a9bbf', letterSpacing: '2px', textTransform: 'uppercase' }}>
+                    DATE • {m.date || 'TBA'}
+                  </div>
+                  <div style={{ fontSize: '1.4rem', fontFamily: 'Orbitron', fontWeight: 800, color: '#fccf14', letterSpacing: '2px', textTransform: 'uppercase', textAlign: 'center', textShadow: '0 0 10px rgba(252, 207, 20, 0.5)' }}>
+                    {m.matchName}
+                  </div>
+                  <div style={{ fontSize: '1.1rem', color: '#00ffff', textShadow: '0 0 5px rgba(0, 255, 255, 0.4)', background: 'rgba(0, 0, 0, 0.5)', border: '1px solid rgba(0, 255, 255, 0.2)', padding: '5px 15px', borderRadius: '20px', marginTop: '5px' }}>
+                    🏆 WINNER: {m.winner || 'PENDING'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       
       <div className="auction-ticker-wrap">

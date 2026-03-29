@@ -70,18 +70,22 @@ const HomePage = ({ user, onLogout }) => {
     const parseTargetTime = (timeStr) => {
       if (!timeStr) return null;
       try {
-        const parts = timeStr.trim().split(/\s+/);
-        if (parts.length < 2) return null; // Needs time and AM/PM
+        // Support formats like "9:00 AM", "6.00 PM", "18:00", "6:30"
+        const cleanStr = timeStr.trim().replace('.', ':');
+        const timeMatch = cleanStr.match(/(\d+)(?::(\d+))?\s*(AM|PM)?/i);
         
-        let [time, period] = parts;
-        let [hours, minutes] = time.split(':').map(Number);
-        period = period.toUpperCase();
+        if (!timeMatch) return null;
+        
+        let [_, hours, minutes, period] = timeMatch;
+        hours = parseInt(hours);
+        minutes = parseInt(minutes || 0);
+        period = (period || '').toUpperCase();
         
         if (period === 'PM' && hours < 12) hours += 12;
         if (period === 'AM' && hours === 12) hours = 0;
         
         const target = new Date();
-        target.setHours(hours, minutes || 0, 0, 0);
+        target.setHours(hours, minutes, 0, 0);
         
         // If the target has already passed today, assume it's for tomorrow
         if (target < new Date()) {
@@ -104,7 +108,7 @@ const HomePage = ({ user, onLogout }) => {
       const diff = targetDate - now;
 
       if (diff <= 0) {
-        setDisplayTime("00:00:00");
+        setDisplayTime("MATCH LIVE");
         return;
       }
 
@@ -266,9 +270,7 @@ With a mix of competition, collaboration, and real-time tasks, CHAMP transforms 
           <span className="footer-dot pulse"></span>
           {matchInfo.footerStatus}
         </div>
-        <button onClick={onLogout} className="footer-logout-btn">
-          EXIT PORTAL
-        </button>
+        <ExitPortalButton onClick={onLogout} />
       </footer>
     </div>
   );
@@ -336,6 +338,91 @@ const InteractiveCard = ({ title, desk, mousePos }) => {
       <h3>{title}</h3>
       <p>{desk}</p>
     </div>
+  );
+};
+
+const ExitPortalButton = ({ onClick }) => {
+  const buttonRef = useRef(null);
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e) => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      // Calculate cursor distance from center
+      const dx = e.clientX - centerX;
+      const dy = e.clientY - centerY;
+      
+      // Limit movement range for smoothness
+      setTranslate({
+        x: dx * 0.15, // Master sensitivity
+        y: dy * 0.15
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setTranslate({ x: 0, y: 0 });
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  return (
+    <button 
+      className={`exit-portal-btn-parallax ${isHovered ? 'hovered' : ''}`}
+      onClick={onClick}
+      ref={buttonRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* Background layer: Moves slightly opposite to cursor for deeper parallax */}
+      <div 
+        className="exit-portal-bg"
+        style={{
+          transform: `translate(${translate.x * -0.5}px, ${translate.y * -0.5}px)`
+        }}
+      ></div>
+      
+      {/* Glass container layer: Moves slightly with cursor */}
+      <div 
+        className="exit-portal-glass"
+        style={{
+          transform: `translate(${translate.x * 0.5}px, ${translate.y * 0.5}px)`
+        }}
+      ></div>
+
+      {/* Content layer: Moves most, giving an illusion of popping out */}
+      <div 
+        className="exit-portal-content"
+        style={{
+          transform: `translate(${translate.x * 1.2}px, ${translate.y * 1.2}px)`
+        }}
+      >
+        <svg 
+          className="exit-portal-icon" 
+          width="18" 
+          height="18" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2.5" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        >
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        <span className="exit-portal-text">EXIT PORTAL</span>
+      </div>
+    </button>
   );
 };
 

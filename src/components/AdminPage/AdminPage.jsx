@@ -21,7 +21,7 @@ const AdminPage = ({ onLogout }) => {
   const [players, setPlayers] = useState([]);
   const [teams, setTeams] = useState([]);
   const [scores, setScores] = useState({ teamA: '', teamB: '', scoreA: '', scoreB: '', overs: '' });
-  const [matchInfo, setMatchInfo] = useState({ nextMatchTime: '02:00', remainingDays: '45', footerStatus: 'PORTAL ACTIVE' });
+  const [matchInfo, setMatchInfo] = useState({ nextMatchTime: '02:00', remainingDays: '45', footerStatus: 'PORTAL ACTIVE', maxScore: 1750 });
   const [scoreboardData, setScoreboardData] = useState(DEFAULT_TEAM_SCORES);
   const [selectedSbTeam, setSelectedSbTeam] = useState('srh');
   const [sbSaveMsg, setSbSaveMsg] = useState('');
@@ -31,6 +31,8 @@ const AdminPage = ({ onLogout }) => {
   // Form States
   const [newPlayer, setNewPlayer] = useState({ name: '', role: 'Batsman', team: '', matches: 0, points: 0 });
   const [newTeam, setNewTeam] = useState({ name: '', icon: '🏏', id: '', budget: 80, spent: 0 });
+  const [completedMatches, setCompletedMatches] = useState([]);
+  const [newMatch, setNewMatch] = useState({ matchName: '', winner: '', date: '' });
 
   useEffect(() => {
     const unsubPlayers = onSnapshot(collectionGroup(db, 'roster'), (snapshot) => {
@@ -61,6 +63,10 @@ const AdminPage = ({ onLogout }) => {
       setFeedback(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
+    const unsubMatches = onSnapshot(collection(db, 'completedMatches'), (snapshot) => {
+      setCompletedMatches(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)));
+    });
+
     return () => {
       unsubPlayers();
       unsubTeams();
@@ -68,6 +74,7 @@ const AdminPage = ({ onLogout }) => {
       unsubMatch();
       unsubSb();
       unsubFeedback();
+      unsubMatches();
     };
   }, []);
 
@@ -93,6 +100,24 @@ const AdminPage = ({ onLogout }) => {
       setNewTeam({ name: '', icon: '🏏', id: '', budget: 80, spent: 0 });
       alert('Team Created!');
     } catch (err) { console.error(err); }
+  };
+
+  const handleAddMatch = async (e) => {
+    e.preventDefault();
+    try {
+      if (!newMatch.matchName.trim() || !newMatch.winner.trim() || !newMatch.date) return;
+      await addDoc(collection(db, 'completedMatches'), { matchName: newMatch.matchName, winner: newMatch.winner, date: newMatch.date, createdAt: new Date().toISOString() });
+      setNewMatch({ matchName: '', winner: '', date: '' });
+      alert('Stage Added!');
+    } catch (err) { console.error(err); }
+  };
+
+  const handleDeleteMatch = async (id) => {
+    if (window.confirm('Delete this match?')) {
+      try {
+        await deleteDoc(doc(db, 'completedMatches', id));
+      } catch (e) { console.error(e); }
+    }
   };
 
   const handleUpdatePlayer = async (id, field, value) => {
@@ -224,7 +249,7 @@ const AdminPage = ({ onLogout }) => {
   const handleInitDB = async () => {
     if (!window.confirm('Initialize DB?')) return;
     try {
-      await setDoc(doc(db, 'settings', 'matchInfo'), { nextMatchTime: '02:00', remainingDays: '45', footerStatus: 'SYSTEM ONLINE' });
+      await setDoc(doc(db, 'settings', 'matchInfo'), { nextMatchTime: '02:00', remainingDays: '45', footerStatus: 'SYSTEM ONLINE', maxScore: 1750 });
       alert('DB Initialized!');
     } catch (err) { console.error(err); }
   };
@@ -282,6 +307,7 @@ const AdminPage = ({ onLogout }) => {
   const handleSaveScoreboard = async () => {
     try {
       await setDoc(doc(db, 'settings', 'teamScores'), { teams: scoreboardData });
+      await setDoc(doc(db, 'settings', 'matchInfo'), { maxScore: matchInfo.maxScore || 1750 }, { merge: true });
       setSbSaveMsg('✅ Saved!');
       setTimeout(() => setSbSaveMsg(''), 2500);
     } catch (err) {
@@ -305,6 +331,7 @@ const AdminPage = ({ onLogout }) => {
         <nav>
           <button className={activeTab === 'teams' ? 'active' : ''} onClick={() => setActiveTab('teams')}>TEAMS</button>
           <button className={activeTab === 'scoreboard' ? 'active' : ''} onClick={() => setActiveTab('scoreboard')}>SCOREBOARD</button>
+          <button className={activeTab === 'matches' ? 'active' : ''} onClick={() => setActiveTab('matches')}>MATCHES</button>
           <button className={activeTab === 'comments' ? 'active' : ''} onClick={() => setActiveTab('comments')}>FEEDBACK</button>
           <button className={activeTab === 'settings' ? 'active' : ''} onClick={() => setActiveTab('settings')}>SETTINGS</button>
         </nav>
@@ -317,6 +344,36 @@ const AdminPage = ({ onLogout }) => {
         </header>
 
         <section className="admin-content">
+          {activeTab === 'matches' && (
+            <div className="admin-grid-two-col">
+              <div className="update-form-card glass-card">
+                <h3>REGISTER COMPLETED STAGE</h3>
+                <form onSubmit={handleAddMatch} className="admin-form-vertical">
+                  <input placeholder="Segment / Match Name (e.g. Round 1, Finals)" value={newMatch.matchName} onChange={e => setNewMatch({...newMatch, matchName: e.target.value})} required />
+                  <input placeholder="Winner (e.g. CSK)" value={newMatch.winner} onChange={e => setNewMatch({...newMatch, winner: e.target.value})} required />
+                  <input type="date" value={newMatch.date} onChange={e => setNewMatch({...newMatch, date: e.target.value})} required style={{ background: 'rgba(0,0,0,0.1)', color: '#fff', padding: '10px', borderRadius: '8px', border: 'none' }} />
+                  <button type="submit" className="save-btn">MARK COMPLETED</button>
+                </form>
+              </div>
+
+              <div className="admin-list-card glass-card">
+                <h3>COMPLETED STAGES</h3>
+                <div className="admin-items-list">
+                  {completedMatches.map(m => (
+                    <div key={m.id} className="team-item-admin" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '1.1rem', textTransform: 'uppercase' }}>{m.matchName}</span>
+                        <span style={{ color: '#00ffff', fontSize: '0.8rem', marginTop: '4px' }}>🏆 {m.winner || 'PENDING'} &nbsp;|&nbsp; 🗓️ {m.date || 'TBA'}</span>
+                      </div>
+                      <button onClick={() => handleDeleteMatch(m.id)} className="btn-delete-small">🗑️</button>
+                    </div>
+                  ))}
+                  {completedMatches.length === 0 && <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>No completed stages yet.</p>}
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'teams' && (
             <div className="admin-grid-two-col">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
@@ -416,9 +473,16 @@ const AdminPage = ({ onLogout }) => {
                   </div>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:'10px' }}>
                     <div className="input-group">
-                      <label>Total Score</label>
+                      <label>Team Total Score</label>
                       <input type="number" value={activeSbTeam.totalScore}
                         onChange={e => updateSbField('totalScore', Number(e.target.value))} />
+                    </div>
+                    <div className="input-group" style={{ marginTop: '5px' }}>
+                      <label style={{ color: '#00d4ff' }}>Global Target Score (e.g. 1750)</label>
+                      <input type="number" value={matchInfo.maxScore || ''}
+                        onChange={e => setMatchInfo({...matchInfo, maxScore: Number(e.target.value)})}
+                        style={{ borderColor: 'rgba(0,212,255,0.4)', background: 'rgba(0,0,0,0.1)' }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -549,12 +613,42 @@ const AdminPage = ({ onLogout }) => {
                 <h3>MATCH SCHEDULING</h3>
                 <form onSubmit={handleUpdateMatchInfo} className="admin-form-vertical">
                   <div className="input-group">
-                    <label>Next Match Time (e.g. 9:00 AM)</label>
-                    <input value={matchInfo.nextMatchTime} onChange={e => setMatchInfo({...matchInfo, nextMatchTime: e.target.value})} placeholder="9:00 AM" />
+                    <label>Next Match Time</label>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <input 
+                        style={{ flex: 2 }}
+                        value={(matchInfo.nextMatchTime || "").split(" ")[0]} 
+                        onChange={e => {
+                          const period = (matchInfo.nextMatchTime || "").split(" ")[1] || "AM";
+                          setMatchInfo({...matchInfo, nextMatchTime: `${e.target.value} ${period}`});
+                        }} 
+                        placeholder="9:00" 
+                      />
+                      <select 
+                        style={{ 
+                          flex: 1, 
+                          background: 'rgba(0,0,0,0.05)', 
+                          border: '1px solid rgba(0,0,0,0.1)', 
+                          borderRadius: '8px',
+                          padding: '0 10px',
+                          color: '#1a1a2e',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                        value={(matchInfo.nextMatchTime || "").split(" ")[1] || "AM"}
+                        onChange={e => {
+                          const time = (matchInfo.nextMatchTime || "").split(" ")[0] || "9:00";
+                          setMatchInfo({...matchInfo, nextMatchTime: `${time} ${e.target.value}`});
+                        }}
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
                   </div>
                   <div className="input-group">
                     <label>Footer Status Msg</label>
-                    <input value={matchInfo.footerStatus} onChange={e => setMatchInfo({...matchInfo, footerStatus: e.target.value})} />
+                    <input value={matchInfo.footerStatus || ''} onChange={e => setMatchInfo({...matchInfo, footerStatus: e.target.value})} />
                   </div>
                   <button type="submit" className="save-btn">SYNC SCHEDULER</button>
                 </form>
